@@ -1,0 +1,21 @@
+#root {
+  height: 100vh;
+  padding: 10px;
+  box-sizing: border-box;
+  display: flex;
+  column-gap: 10px;
+  justify-content: space-around;
+  text-align: center;
+}
+.box {
+  flex: 1;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  row-gap: 10px;
+}
+.box:last-of-type {
+  flex: none;
+  width: 80px;
+}
+

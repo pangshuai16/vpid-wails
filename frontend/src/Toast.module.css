@@ -1,0 +1,51 @@
+.toast {
+  position: fixed;
+  margin: auto;
+  text-align: center;
+  top: 6vh;
+  width: 38.2vw;
+  min-width: 100px;
+  background-color: var(--primary);
+  color: var(--primary-inverse);
+  padding: 10px 20px;
+  border-radius: 5px;
+  box-shadow: 1px 1px 24px var(--primary), 1px 1px 12px var(--primary-inverse);
+}
+
+@-webkit-keyframes slideInUp {
+  from {
+    -webkit-transform: translate3d(0, 100%, 0);
+    transform: translate3d(0, 100%, 0);
+    visibility: visible;
+  }
+
+  to {
+    -webkit-transform: translate3d(0, 0, 0);
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes slideInUp {
+  from {
+    -webkit-transform: translate3d(0, 100%, 0);
+    transform: translate3d(0, 100%, 0);
+    visibility: visible;
+  }
+
+  to {
+    -webkit-transform: translate3d(0, 0, 0);
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+.slideInUp {
+  -webkit-animation-name: slideInUp;
+  animation-name: slideInUp;
+}
+
+.animated {
+  -webkit-animation-duration: 160ms;
+  animation-duration: 160ms;
+  -webkit-animation-fill-mode: both;
+  animation-fill-mode: both;
+}
