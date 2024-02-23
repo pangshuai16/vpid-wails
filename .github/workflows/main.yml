@@ -69,12 +69,9 @@ jobs:
       - name: install msys2 (windows only)
         if: matrix.build.os == 'windows-latest'
         uses: msys2/setup-msys2@v2
-      - name: Cache MSYS2 environment
-        uses: actions/cache@v2
         with:
-          path: ${{ env.MSYS2_PATH }}
-          key: msys2-${{ hashFiles('**/msys2-dependencies.txt') }}
-
+          msystem: UCRT64
+          update: false
       - name: view msys2 path
         if: matrix.build.os == 'windows-latest'
         shell: powershell
@@ -82,6 +79,11 @@ jobs:
           echo ------------------------------------------
           echo $env.MSYS2_PATH
           echo ------------------------------------------
+      - name: Cache MSYS2 environment
+        uses: actions/cache@v2
+        with:
+          path: c:\msys64
+          key: msys2-${{ hashFiles('**/msys2-dependencies.txt') }}
 
       - name: install dependencies (windows only)
         if: matrix.build.os == 'windows-latest'
