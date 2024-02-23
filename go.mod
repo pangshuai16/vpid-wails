@@ -6,7 +6,7 @@ toolchain go1.21.6
 
 require (
 	github.com/google/gousb v1.1.2
-	github.com/wailsapp/wails/v2 v2.7.1
+	github.com/wailsapp/wails/v2 v2.8.0
 )
 
 require (
