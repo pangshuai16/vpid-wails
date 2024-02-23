@@ -27,6 +27,8 @@ jobs:
 
   # 任务：构建
   build:
+    permissions:
+      contents: write
     # needs: create-release
     strategy:
       # Failure in one platform build won't impact the others
@@ -68,7 +70,7 @@ jobs:
         if: matrix.build.os == 'windows-latest'
         shell: powershell
         run: |
-          choco install pkgconfiglite libusbdotnet
+          choco install pkgconfiglite libusbdotnet -y
 
       # 安装 pnpm
       # - name: Install pnpm
