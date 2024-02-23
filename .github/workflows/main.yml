@@ -70,7 +70,7 @@ jobs:
         if: matrix.build.os == 'windows-latest'
         uses: msys2/setup-msys2@v2
         with:
-          msystem: UCRT64
+          msystem: MINGW64
           update: false
 
       - name: install dependencies (windows only)
