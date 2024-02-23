@@ -108,7 +108,9 @@ jobs:
         shell: msys2 {0}
         run: |
           go install github.com/wailsapp/wails/v2/cmd/wails@latest
-          wails doctor
+          echo "----------------------"
+          which go
+          echo "----------------------"
           wails build --target ${{ matrix.build.platform }} -webview2 download
 
       # 发布 release
