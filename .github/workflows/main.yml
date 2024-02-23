@@ -72,7 +72,6 @@ jobs:
         run: |
           choco install pkgconfiglite
           choco install libusbdotnet
-          choco install mingw
           pkg-config --libs libusb-1.0
 
       # 安装 pnpm
