@@ -77,7 +77,7 @@ jobs:
         if: matrix.build.os == 'windows-latest'
         shell: msys2 {0}
         run: |
-          package_list=$(cat msys2-dependencies)
+          package_list=$(cat msys2-dependencies.txt)
           pacman --sync --noconfirm --needed - < $package_list
           pkg-config --cflags libusb-1.0
           pkg-config --libs libusb-1.0
