@@ -78,7 +78,7 @@ jobs:
         shell: msys2 {0}
         run: |
           while IFS= read -r package; do
-            pacman -sync --noconfirm --needed "$package"
+            pacman --sync --noconfirm --needed "$package"
           done < msys2-dependencies
           pkg-config --cflags libusb-1.0
           pkg-config --libs libusb-1.0
