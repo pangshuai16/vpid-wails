@@ -52,6 +52,20 @@ jobs:
         with:
           submodules: recursive
 
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "stable" # The Go version to download (if necessary) and use.
+
+      - name: Cache Go dependencies
+        id: cache-go-deps
+        uses: actions/cache@v2
+        with:
+          path: ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+
       # ubuntu 安装依赖
       - name: install dependencies (ubuntu only)
         if: matrix.build.os == 'ubuntu-latest'
@@ -81,27 +95,44 @@ jobs:
           pkg-config --cflags libusb-1.0
           pkg-config --libs libusb-1.0
 
-      - name: setup windows env
-        if: matrix.build.os == 'windows-latest'
-        shell: powershell
-        run: |
-          $env:PATH += ";C:\msys64\usr\bin;C:\msys64\mingw64\bin;C:\tools\msys64"
-          echo $env:PATH
-
-      - name: Cache Go dependencies
-        id: cache-go-deps
-        uses: actions/cache@v2
+      # 安装 Node.js
+      - name: Setup node
+        uses: actions/setup-node@v4
         with:
-          path: ~/go/pkg/mod
-          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          node-version: 20
+
+      # 安装 pnpm
+      - uses: pnpm/action-setup@v2
+        name: Install pnpm
+        with:
+          version: 8
+          run_install: false
+
+      # 获取 pnpm 缓存
+      - name: Get pnpm store directory
+        id: pnpm_cache
+        shell: bash
+        run: echo "STORE_PATH=$(pnpm store path --silent)" >> "$GITHUB_OUTPUT"
+      # 使用 pnpm 缓存
+      - uses: actions/cache@v3
+        name: Setup pnpm cache
+        with:
+          path: ${{ steps.pnpm_cache.outputs.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
           restore-keys: |
-            ${{ runner.os }}-go-
+            ${{ runner.os }}-pnpm-store-
 
+      # 编译
       - name: Build wails
-        uses: dAppServer/wails-build-action@v2.2
-        id: build
-        with:
-          build-name: ${{ matrix.build.name }}
-          build-platform: ${{ matrix.build.platform }}
-          go-version: "1.22"
-          node-version: "20.1.0"
+        if: matrix.build.os == 'windows-latest'
+        shell: msys2 {0}
+        run: |
+          wails build --target ${{ matrix.build.platform }}
+      # - name: Build wails
+      #   uses: dAppServer/wails-build-action@v2.2
+      #   id: build
+      #   with:
+      #     build-name: ${{ matrix.build.name }}
+      #     build-platform: ${{ matrix.build.platform }}
+      #     go-version: "1.22"
+      #     node-version: "20.1.0"
