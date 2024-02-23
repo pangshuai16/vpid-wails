@@ -41,6 +41,26 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y libusb-1.0
 
+      # macos 安装依赖
+      - name: install dependencies (macos only)
+        if: matrix.build.os == 'macos-latest'
+        run: |
+          brew install libusb
+
+      # windows 安装依赖
+      - name: install dependencies (windows only)
+        if: matrix.build.os == 'windows-latest'
+        shell: powershell
+        run: |
+          choco install libusb
+
+      # 安装 pnpm
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+          run_install: false
+
       - name: Build wails
         uses: dAppServer/wails-build-action@v2.2
         id: build
