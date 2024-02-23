@@ -80,7 +80,7 @@ jobs:
           $env:Path = "C:\libusb\MinGW\bin;" + $env:Path
 
           # 下载 pkg-config 压缩文件
-          chcoc install pkgcnfiglite
+          choco install install pkgcnfiglite
 
           pkg-config --libs libusb-1.0
 
