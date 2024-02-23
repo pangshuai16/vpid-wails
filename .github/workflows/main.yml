@@ -79,11 +79,6 @@ jobs:
           # 将 libusb 路径添加到环境变量中
           $env:Path = "C:\libusb\MinGW\bin;" + $env:Path
 
-          # 下载 pkg-config 压缩文件
-          choco install install pkgcnfiglite
-
-          pkg-config --libs libusb-1.0
-
       # 安装 pnpm
       # - name: Install pnpm
       #   uses: pnpm/action-setup@v2
