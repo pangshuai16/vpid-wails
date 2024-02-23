@@ -80,11 +80,7 @@ jobs:
           $env:Path = "C:\libusb\MinGW\bin;" + $env:Path
 
           # 下载 pkg-config 压缩文件
-          $url = "https://win32builder.gnome.org/builds/pkg-config-lite/pkg-config-lite-latest.zip"
-          $outfile = "pkg-config.zip"
-          Invoke-WebRequest -Uri $url -OutFile $outfile
-          Expand-Archive -Path $outfile -DestinationPath pkg-config
-          Add-Path "$PWD/pkg-config/bin"
+          chcoc install pkgcnfiglite
 
           pkg-config --libs libusb-1.0
 
