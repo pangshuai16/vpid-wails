@@ -70,7 +70,7 @@ jobs:
         if: matrix.build.os == 'windows-latest'
         shell: powershell
         run: |
-          choco install pkgconfiglite libusbdotnet -y
+          choco install pkg-config-lite libusbdotnet -y
 
       # 安装 pnpm
       # - name: Install pnpm
@@ -83,7 +83,7 @@ jobs:
         uses: dAppServer/wails-build-action@v2.2
         id: build
         with:
-          build-name: ${{ matrix.build.name }}
+          build-name: ${{ matrix.build.name }}-${{ matrix.build.platform }}
           build-platform: ${{ matrix.build.platform }}
           go-version: "1.22"
           node-version: "20.1.0"
