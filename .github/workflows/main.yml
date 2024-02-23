@@ -70,14 +70,12 @@ jobs:
         if: matrix.build.os == 'windows-latest'
         shell: powershell
         run: |
-          # 下载 libusb 压缩文件
-          $url = 'https://github.com/libusb/libusb/releases/download/v1.0.24/libusb-1.0.24.7z'
-          $out = 'libusb.7z'
-          Invoke-WebRequest -Uri $url -OutFile $out
-          # 解压缩 libusb 文件
-          7z x $out -oC:\libusb -r
-          # 将 libusb 路径添加到环境变量中
-          $env:Path = "C:\libusb\MinGW\bin;" + $env:Path
+          choco install msys2 -y
+          pacman --noconfirm -S mingw-w64-x86_64-gcc
+          pacman --noconfirm -S mingw-w64-x86_64-libusb
+          pacman --noconfirm -S mingw-w64-x86_64-pkg-config
+          pkg-config --cflags libusb-1.0
+          pkg-config --libs libusb-1.0
 
       # 安装 pnpm
       # - name: Install pnpm
