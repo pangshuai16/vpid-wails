@@ -104,7 +104,6 @@ jobs:
         shell: msys2 {0}
         run: |
           pacman -S --noconfirm --needed mingw-w64-x86_64-gcc mingw-w64-x86_64-libusb mingw-w64-x86_64-pkg-config
-          export PATH="/c/Users/runneradmin/go/bin:/c/hostedtoolcache/windows/go/1.22.0/x64/bin:$PATH"
           pkg-config --cflags libusb-1.0
           pkg-config --libs libusb-1.0
 
@@ -113,6 +112,7 @@ jobs:
         if: matrix.build.os == 'windows-latest'
         shell: msys2 {0}
         run: |
+          export PATH="/c/Users/runneradmin/go/bin:/c/hostedtoolcache/windows/go/1.22.0/x64/bin:$PATH"
           wails build --target ${{ matrix.build.platform }} -webview2 download
 
       # 发布 release
