@@ -52,20 +52,6 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Setup Go
-        uses: actions/setup-go@v5
-        with:
-          go-version: "stable" # The Go version to download (if necessary) and use.
-
-      - name: Cache Go dependencies
-        id: cache-go-deps
-        uses: actions/cache@v2
-        with:
-          path: ~/go/pkg/mod
-          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
-          restore-keys: |
-            ${{ runner.os }}-go-
-
       # ubuntu 安装依赖
       - name: install dependencies (ubuntu only)
         if: matrix.build.os == 'ubuntu-latest'
@@ -88,6 +74,7 @@ jobs:
         if: matrix.build.os == 'windows-latest'
         shell: msys2 {0}
         run: |
+          pacman --noconfirm -S mingw-w64-x86_64-go
           pacman --noconfirm -S mingw-w64-x86_64-gcc
           pacman --noconfirm -S mingw-w64-x86_64-libusb
           pacman -Ql mingw-w64-x86_64-libusb
@@ -121,6 +108,15 @@ jobs:
           key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
           restore-keys: |
             ${{ runner.os }}-pnpm-store-
+
+      - name: Cache Go dependencies
+        id: cache-go-deps
+        uses: actions/cache@v2
+        with:
+          path: ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
 
       # 编译
       - name: Build wails
