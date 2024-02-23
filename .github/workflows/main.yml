@@ -40,8 +40,7 @@ jobs:
             os: "ubuntu-latest"
           - name: "usb_list"
             platform: "windows/amd64"
-            # os: "windows-latest"
-            os: "ubuntu-latest"
+            os: "windows-latest"
           - name: "usb_list"
             platform: "darwin/amd64"
             os: "macos-latest"
@@ -71,7 +70,9 @@ jobs:
         if: matrix.build.os == 'windows-latest'
         shell: powershell
         run: |
-          choco install pkg-config-lite libusbdotnet -y
+          choco install pkgconfiglite
+          choco install libusbdotnet
+          choco install mingw
 
       # 安装 pnpm
       # - name: Install pnpm
