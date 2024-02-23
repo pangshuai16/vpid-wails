@@ -70,7 +70,7 @@ jobs:
         if: matrix.build.os == 'windows-latest'
         uses: msys2/setup-msys2@v2
         with:
-          # msystem: UCRT64
+          msystem: UCRT64
           update: true
           release: false
 
@@ -78,9 +78,7 @@ jobs:
         if: matrix.build.os == 'windows-latest'
         shell: msys2 {0}
         run: |
-          while IFS= read -r package; do
-            pacman --noconfirm -S --needed $package
-          done < msys2-dependencies
+          pacman -S --noconfirm --needed mingw-w64-ucrt-x86_64-go mingw-w64-ucrt-x86_64-nodejs mingw-w64-ucrt-x86_64-gcc mingw-w64-ucrt-x86_64-libusb mingw-w64-ucrt-x86_64-pkg-config
           pkg-config --cflags libusb-1.0
           pkg-config --libs libusb-1.0
           npm install -g pnpm
