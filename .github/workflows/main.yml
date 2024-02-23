@@ -71,7 +71,10 @@ jobs:
         shell: powershell
         run: |
           choco install msys2 -y
-          setx PATH "%PATH%;C:\tools\msys64\usr\bin"
+          # Add MSYS2 to the PATH environment variable
+          $msys2Bin = "C:\tools\msys64\usr\bin"
+          $env:Path += ";$msys2Bin"
+          RefreshEnv
           pacman --noconfirm -S mingw-w64-x86_64-gcc
           pacman --noconfirm -S mingw-w64-x86_64-libusb
           pacman --noconfirm -S mingw-w64-x86_64-pkg-config
