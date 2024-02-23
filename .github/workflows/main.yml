@@ -81,16 +81,7 @@ jobs:
           pacman -S --noconfirm --needed mingw-w64-ucrt-x86_64-go mingw-w64-ucrt-x86_64-nodejs mingw-w64-ucrt-x86_64-gcc mingw-w64-ucrt-x86_64-libusb mingw-w64-ucrt-x86_64-pkg-config
           pkg-config --cflags libusb-1.0
           pkg-config --libs libusb-1.0
-          npm install -g pnpm
-
-          echo "----------------------"
           export GOROOT=/ucrt64/lib/go
-          echo "----------------------"
-          go env GOPATH
-          echo "----------------------"
-          pnpm store path --silent
-          echo "----------------------"
-
           go install github.com/wailsapp/wails/v2/cmd/wails@latest
 
       # 编译
