@@ -81,6 +81,13 @@ jobs:
           pkg-config --cflags libusb-1.0
           pkg-config --libs libusb-1.0
 
+      - name: setup windows env
+        if: matrix.build.os == 'windows-latest'
+        shell: powershell
+        run: |
+          $env:PATH = "C:\msys64\usr\bin;C:\msys64\mingw64\bin;$env:PATH;C:\tools\msys64"
+          $env:PATH
+
       - name: Build wails
         uses: dAppServer/wails-build-action@v2.2
         id: build
