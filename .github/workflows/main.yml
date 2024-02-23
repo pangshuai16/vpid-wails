@@ -67,10 +67,11 @@ jobs:
 
       # windows 安装依赖
       - name: install msys2 (windows only)
-        uses: msys2/setup-msys2@v2
         if: matrix.build.os == 'windows-latest'
+        uses: msys2/setup-msys2@v2
 
       - name: install dependencies (windows only)
+        if: matrix.build.os == 'windows-latest'
         shell: msys2 {0}
         run: |
           pacman --noconfirm -S mingw-w64-x86_64-gcc
@@ -79,13 +80,6 @@ jobs:
           pacman --noconfirm -S mingw-w64-x86_64-pkg-config
           pkg-config --cflags libusb-1.0
           pkg-config --libs libusb-1.0
-
-      # 安装 pnpm
-      # - name: Install pnpm
-      #   uses: pnpm/action-setup@v2
-      #   with:
-      #     version: 8
-      #     run_install: false
 
       - name: Build wails
         uses: dAppServer/wails-build-action@v2.2
