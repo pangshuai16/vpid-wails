@@ -71,7 +71,7 @@ jobs:
         shell: powershell
         run: |
           choco install msys2 -y
-          pacman --noconfirm -Syuu
+          setx PATH "%PATH%;C:\tools\msys64\usr\bin"
           pacman --noconfirm -S mingw-w64-x86_64-gcc
           pacman --noconfirm -S mingw-w64-x86_64-libusb
           pacman --noconfirm -S mingw-w64-x86_64-pkg-config
