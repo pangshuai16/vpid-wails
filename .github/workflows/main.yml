@@ -70,8 +70,8 @@ jobs:
         if: matrix.build.os == 'windows-latest'
         shell: powershell
         run: |
-          choco install pkgconfiglite
-          choco install libusbdotnet
+          scoop install main/pkg-config
+          scoop install nonportable/zadig-np
           pkg-config --libs libusb-1.0
 
       # 安装 pnpm
