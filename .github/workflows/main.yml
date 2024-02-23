@@ -35,15 +35,15 @@ jobs:
       fail-fast: false
       matrix:
         build:
-          - name: "usb_list"
-            platform: "linux/amd64"
-            os: "ubuntu-latest"
+          # - name: "usb_list"
+          #   platform: "linux/amd64"
+          #   os: "ubuntu-latest"
           - name: "usb_list"
             platform: "windows/amd64"
             os: "windows-latest"
-          - name: "usb_list"
-            platform: "darwin/amd64"
-            os: "macos-latest"
+          # - name: "usb_list"
+          #   platform: "darwin/amd64"
+          #   os: "macos-latest"
 
     runs-on: ${{ matrix.build.os }}
     steps:
@@ -70,7 +70,11 @@ jobs:
         if: matrix.build.os == 'windows-latest'
         shell: powershell
         run: |
+          Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+          Invoke-RestMethod -Uri https://get.scoop.sh | Invoke-Expression
+          scoop bucket add main
           scoop install main/pkg-config
+          scoop bucket add nonportable
           scoop install nonportable/zadig-np
           pkg-config --libs libusb-1.0
 
