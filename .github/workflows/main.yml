@@ -66,10 +66,11 @@ jobs:
           brew install libusb
 
       # windows 安装依赖
-      - name: install dependencies (windows only)
+      - name: install msys2 (windows only)
         if: matrix.build.os == 'windows-latest'
         shell: powershell
         run: |
+          Import-Module $env:ChocolateyInstall\helpers\chocolateyProfile.psm1
           choco install msys2 -y
           # Add MSYS2 to the PATH environment variable
           $env:Path += ";C:\tools\msys64\usr\bin"
