@@ -81,8 +81,9 @@ jobs:
           pacman -S --noconfirm --needed mingw-w64-x86_64-go mingw-w64-x86_64-nodejs mingw-w64-x86_64-gcc mingw-w64-x86_64-libusb mingw-w64-x86_64-pkg-config
           pkg-config --cflags libusb-1.0
           pkg-config --libs libusb-1.0
-          # export GOROOT=/ucrt64/lib/go
-          # export GOPATH=/ucrt64/go
+          export GOROOT=/mingw64/lib/go
+          export GOPATH=~/goexport
+          export PATH="$GOROOT/bin:$GOPATH/bin:$PATH"
           go install github.com/wailsapp/wails/v2/cmd/wails@latest
 
       # 编译
