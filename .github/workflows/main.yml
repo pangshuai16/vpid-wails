@@ -67,19 +67,15 @@ jobs:
 
       # windows 安装依赖
       - name: install msys2 (windows only)
+        uses: msys2/setup-msys2@v2
         if: matrix.build.os == 'windows-latest'
-        shell: powershell
+
+      - name: install dependencies (windows only)
+        shell: msys2 {0}
         run: |
-          Import-Module $env:ChocolateyInstall\helpers\chocolateyProfile.psm1
-          choco install msys2 -y
-          # Add MSYS2 to the PATH environment variable
-          $env:Path += ";C:\tools\msys64\usr\bin"
-          RefreshEnv
           pacman --noconfirm -S mingw-w64-x86_64-gcc
           pacman --noconfirm -S mingw-w64-x86_64-libusb
           pacman -Ql mingw-w64-x86_64-libusb
-          $env:Path += ";C:\msys64\mingw64\bin"
-          RefreshEnv
           pacman --noconfirm -S mingw-w64-x86_64-pkg-config
           pkg-config --cflags libusb-1.0
           pkg-config --libs libusb-1.0
