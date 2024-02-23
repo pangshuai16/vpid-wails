@@ -72,11 +72,13 @@ jobs:
         run: |
           choco install msys2 -y
           # Add MSYS2 to the PATH environment variable
-          $msys2Bin = "C:\tools\msys64\usr\bin"
-          $env:Path += ";$msys2Bin"
+          $env:Path += ";C:\tools\msys64\usr\bin"
           RefreshEnv
           pacman --noconfirm -S mingw-w64-x86_64-gcc
           pacman --noconfirm -S mingw-w64-x86_64-libusb
+          pacman -Ql mingw-w64-x86_64-libusb
+          $env:Path += ";C:\msys64\mingw64\bin"
+          RefreshEnv
           pacman --noconfirm -S mingw-w64-x86_64-pkg-config
           pkg-config --cflags libusb-1.0
           pkg-config --libs libusb-1.0
