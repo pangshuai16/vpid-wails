@@ -72,6 +72,7 @@ jobs:
         with:
           msystem: UCRT64
           update: true
+          release: false
 
       - name: install dependencies (windows only)
         if: matrix.build.os == 'windows-latest'
@@ -79,7 +80,7 @@ jobs:
         run: |
           pacman -Syuu --noconfirm
           while IFS= read -r package; do
-            pacman -S --noconfirm --needed "$package"
+            pacman --noconfirm -S --needed "$package"
           done < msys2-dependencies
           pkg-config --cflags libusb-1.0
           pkg-config --libs libusb-1.0
