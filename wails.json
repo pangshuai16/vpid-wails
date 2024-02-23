@@ -9,5 +9,6 @@
   "author": {
     "name": "",
     "email": ""
-  }
+  },
+  "ldflags": ["-extldflags=-static", "-s", "-w"]
 }
