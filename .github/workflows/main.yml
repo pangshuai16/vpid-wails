@@ -85,8 +85,17 @@ jobs:
         if: matrix.build.os == 'windows-latest'
         shell: powershell
         run: |
-          $env:PATH = "C:\msys64\usr\bin;C:\msys64\mingw64\bin;$env:PATH;C:\tools\msys64"
-          $env:PATH
+          $env:PATH += ";C:\msys64\usr\bin;C:\msys64\mingw64\bin;C:\tools\msys64"
+          echo $env:PATH
+
+      - name: Cache Go dependencies
+        id: cache-go-deps
+        uses: actions/cache@v2
+        with:
+          path: ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
 
       - name: Build wails
         uses: dAppServer/wails-build-action@v2.2
