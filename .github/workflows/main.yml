@@ -11,7 +11,23 @@ env:
   NODE_OPTIONS: "--max-old-space-size=4096"
 
 jobs:
+  # 任务：创建 release 版本
+  create-release:
+    permissions:
+      contents: write
+    runs-on: ubuntu-latest
+    outputs:
+      RELEASE_UPLOAD_ID: ${{ steps.create_release.outputs.id }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Create Release
+        id: create_release
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
+
+  # 任务：构建
   build:
+    needs: create-release
     strategy:
       # Failure in one platform build won't impact the others
       fail-fast: false
@@ -20,9 +36,9 @@ jobs:
           - name: "usb_list"
             platform: "linux/amd64"
             os: "ubuntu-latest"
-          # - name: "usb_list"
-          #   platform: "windows/amd64"
-          #   os: "windows-latest"
+          - name: "usb_list"
+            platform: "windows/amd64"
+            os: "windows-latest"
           - name: "usb_list"
             platform: "darwin/amd64"
             os: "macos-latest"
@@ -52,7 +68,7 @@ jobs:
         if: matrix.build.os == 'windows-latest'
         shell: powershell
         run: |
-          choco install libusbdotnet
+          choco install libusbdotnet pkgconfiglite
 
       # 安装 pnpm
       - name: Install pnpm
