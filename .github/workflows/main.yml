@@ -17,13 +17,13 @@ jobs:
       fail-fast: false
       matrix:
         build:
-          - name: "App"
+          - name: "usb_list"
             platform: "linux/amd64"
             os: "ubuntu-latest"
-          - name: "App"
+          - name: "usb_list"
             platform: "windows/amd64"
             os: "windows-latest"
-          - name: "App"
+          - name: "usb_list"
             platform: "darwin/amd64"
             os: "macos-latest"
 
@@ -52,7 +52,7 @@ jobs:
         if: matrix.build.os == 'windows-latest'
         shell: powershell
         run: |
-          choco install libusb
+          choco install libusbdotnet
 
       # 安装 pnpm
       - name: Install pnpm

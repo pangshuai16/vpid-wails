@@ -1,6 +1,6 @@
 {
   "$schema": "https://wails.io/schemas/config.v2.json",
-  "name": "vpid",
+  "name": "usb_list",
   "outputfilename": "usb_list",
   "frontend:install": "pnpm install",
   "frontend:build": "pnpm run build",
