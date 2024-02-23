@@ -70,7 +70,7 @@ jobs:
         if: matrix.build.os == 'windows-latest'
         uses: msys2/setup-msys2@v2
         with:
-          msystem: UCRT64
+          # msystem: UCRT64
           update: true
           release: false
 
@@ -78,7 +78,6 @@ jobs:
         if: matrix.build.os == 'windows-latest'
         shell: msys2 {0}
         run: |
-          pacman -Syuu --noconfirm
           while IFS= read -r package; do
             pacman --noconfirm -S --needed "$package"
           done < msys2-dependencies
