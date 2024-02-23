@@ -84,9 +84,7 @@ jobs:
           npm install -g pnpm
 
           echo "----------------------"
-          ls /msys64
-          ls /msys64/ucrt64
-          ls /msys64/ucrt64/include
+          ls /mingw64
           echo "----------------------"
           go env GOPATH
           echo "----------------------"
