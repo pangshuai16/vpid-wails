@@ -52,6 +52,18 @@ jobs:
         with:
           submodules: recursive
 
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "stable" # The Go version to download (if necessary) and use.
+      - run: |
+          go version
+          go install github.com/wailsapp/wails/v2/cmd/wails@latest
+
+      - uses: DerYeger/pnpm-setup-action@master
+        with:
+          node-version: 20
+      - run: pnpm --version
+
       # ubuntu 安装依赖
       - name: install dependencies (ubuntu only)
         if: matrix.build.os == 'ubuntu-latest'
@@ -78,13 +90,9 @@ jobs:
         if: matrix.build.os == 'windows-latest'
         shell: msys2 {0}
         run: |
-          pacman -S --noconfirm --needed mingw-w64-x86_64-go mingw-w64-x86_64-nodejs mingw-w64-x86_64-gcc mingw-w64-x86_64-libusb mingw-w64-x86_64-pkg-config
+          pacman -S --noconfirm --needed mingw-w64-x86_64-gcc mingw-w64-x86_64-libusb mingw-w64-x86_64-pkg-config
           pkg-config --cflags libusb-1.0
           pkg-config --libs libusb-1.0
-          export GOROOT=/mingw64/lib/go
-          export GOPATH=~/goexport
-          export PATH="$GOROOT/bin:$GOPATH/bin:$PATH"
-          go install github.com/wailsapp/wails/v2/cmd/wails@latest
 
       # 编译
       - name: Build wails
