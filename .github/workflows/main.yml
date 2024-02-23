@@ -72,31 +72,21 @@ jobs:
         with:
           msystem: UCRT64
           update: false
-      - name: view msys2 path
-        if: matrix.build.os == 'windows-latest'
-        shell: powershell
-        run: |
-          echo ------------------------------------------
-          echo $env.MSYS2_PATH
-          echo ------------------------------------------
-      - name: Cache MSYS2 environment
-        uses: actions/cache@v2
-        with:
-          path: c:\msys64
-          key: msys2-${{ hashFiles('**/msys2-dependencies.txt') }}
 
       - name: install dependencies (windows only)
         if: matrix.build.os == 'windows-latest'
         shell: msys2 {0}
         run: |
-          pacman --sync --noconfirm --needed - < dependencies.txt
+          pacman --sync --noconfirm --needed - < msys2-dependencies
           pkg-config --cflags libusb-1.0
           pkg-config --libs libusb-1.0
           npm install -g pnpm
           go install github.com/wailsapp/wails/v2/cmd/wails@latest
           echo "----------------------"
           which go
+          echo "----------------------"
           go env GOPATH
+          echo "----------------------"
           pnpm store path --silent
           echo "----------------------"
 
