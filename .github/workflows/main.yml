@@ -84,7 +84,7 @@ jobs:
           npm install -g pnpm
 
           echo "----------------------"
-          ls /mingw64
+          export GOROOT=/ucrt64/lib/go
           echo "----------------------"
           go env GOPATH
           echo "----------------------"
