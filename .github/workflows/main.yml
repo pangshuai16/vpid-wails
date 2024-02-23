@@ -52,17 +52,26 @@ jobs:
         with:
           submodules: recursive
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+          run_install: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "pnpm"
+
+      - run: pnpm --version
+
       - uses: actions/setup-go@v5
         with:
           go-version: "stable" # The Go version to download (if necessary) and use.
       - run: |
           go version
           go install github.com/wailsapp/wails/v2/cmd/wails@latest
-
-      - uses: DerYeger/pnpm-setup-action@master
-        with:
-          node-version: 20
-      - run: pnpm --version
 
       # ubuntu 安装依赖
       - name: install dependencies (ubuntu only)
