@@ -100,6 +100,7 @@ jobs:
         shell: msys2 {0}
         run: |
           pacman -S --noconfirm --needed mingw-w64-x86_64-gcc mingw-w64-x86_64-libusb mingw-w64-x86_64-pkg-config
+          export PATH= "C:\\Users\\runneradmin\\go\\bin:C:\\hostedtoolcache\\windows\\go\\1.22.0\\x64\\bin:$PATH"
           pkg-config --cflags libusb-1.0
           pkg-config --libs libusb-1.0
 
