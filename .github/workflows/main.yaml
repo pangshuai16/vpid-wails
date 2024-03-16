@@ -39,8 +39,8 @@ jobs:
               platform: "linux/arm64",
               os: "ubuntu-latest",
             },
-            { name: "darwin-amd64", platform: "darwin/amd64", os: "macos-11" },
-            { name: "darwin-arm64", platform: "darwin/arm64", os: "macos-11" },
+            { name: "darwin-amd64", platform: "darwin/amd64", os: "macos-13" },
+            { name: "darwin-arm64", platform: "darwin/arm64", os: "macos-14" },
           ]
 
     runs-on: ${{ matrix.build.os }}
@@ -55,7 +55,7 @@ jobs:
 
       # set dependencies (linux only)
       - name: install dependencies (ubuntu only)
-        if: matrix.build.os == 'ubuntu-latest'
+        if: startsWith(matrix.build.os,'ubuntu')
         run: |
           sudo apt-get update
           sudo apt-get install -y build-essential
@@ -68,7 +68,7 @@ jobs:
 
       # set dependencies (macos only)
       - name: install dependencies (macos only)
-        if: matrix.build.os == 'macos-13'
+        if: startsWith(matrix.build.os,'macos')
         run: |
           brew install pkg-config
           brew install libusb
@@ -77,15 +77,16 @@ jobs:
 
       # set dependencies (windows only)
       - name: install dependencies (windows only)
-        if: matrix.build.os == 'windows-latest'
+        if: startsWith(matrix.build.os,'windows')
         uses: msys2/setup-msys2@v2
         with:
           update: true
           release: false
           install: >
+            mingw-w64-x86_64-pkg-config
             mingw-w64-x86_64-libusb
       - name: install dependencies (windows only)
-        if: matrix.build.os == 'windows-latest'
+        if: startsWith(matrix.build.os,'windows')
         shell: powershell
         run: |
           choco install upx
@@ -108,7 +109,7 @@ jobs:
       - name: Install Wails
         run: go install github.com/wailsapp/wails/v2/cmd/wails@latest
       - name: Build Wails App
-        run: wails build -s -upx --platform ${{matrix.build.platform}} -o ${{ env.APP_NAME }} -ldflags "-extldflags=-static"
+        run: wails build -s --platform ${{matrix.build.platform}} -o ${{ env.APP_NAME }} -ldflags "-extldflags=-static"
 
       # Upload build assets
       - uses: actions/upload-artifact@v4
