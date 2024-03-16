@@ -4,7 +4,7 @@ on:
   push:
     tags:
       # Match any new tag
-      - "vv*"
+      - "v*"
 
 env:
   # Necessary for most environments as build failure can occur due to OOM issues
@@ -29,9 +29,6 @@ jobs:
           - name: "linux-arm64"
             platform: "linux/arm64"
             os: "ubuntu-latest"
-          - name: "windows-amd64"
-            platform: "windows/amd64"
-            os: "windows-latest"
           - name: "macos-amd64"
             platform: "darwin/amd64"
             os: "macos-latest"
@@ -45,9 +42,14 @@ jobs:
 
       # ubuntu 安装依赖
       - name: install dependencies (ubuntu only)
+        if: matrix.build.os == 'ubuntu-latest'
         run: |
           sudo apt-get update
-          sudo apt-get install -y libusb-1.0 upx-ucl
+          sudo apt-get install -y pkg-config libusb-1.0 upx-ucl
+      - name: install dependencies (mac only)
+        if: matrix.build.os == 'macos-latest'
+        run: |
+          brew install pkg-config libusb upx
 
       - uses: dAppServer/wails-build-action@v2.2
         with:
