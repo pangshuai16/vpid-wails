@@ -8,6 +8,7 @@ on:
 
 env:
   # Necessary for most environments as build failure can occur due to OOM issues
+  APP_NAME: "usb_list"
   NODE_OPTIONS: "--max-old-space-size=4096"
   NODE_VERSION: "20"
   PNPM_VERSION: "8.10.0"
@@ -38,18 +39,18 @@ jobs:
       fail-fast: false
       matrix:
         build:
-          - platform: "linux/amd64"
+          - name: "linux-amd64"
+            platform: "linux/amd64"
             os: "ubuntu-latest"
-
           # - name: "usb_list"
           #   platform: "linux/arm64"
           #   os: "ubuntu-latest"
-          # - name: "usb_list"
-          #   platform: "windows/amd64"
-          #   os: "windows-latest"
-          # - name: "usb_list"
-          #   platform: "darwin/universal"
-          #   os: "macos-latest"
+          - name: "windows-amd64"
+            platform: "windows/amd64"
+            os: "windows-latest"
+          - name: "macos-universal"
+            platform: "darwin/universal"
+            os: "macos-latest"
 
     runs-on: ${{ matrix.build.os }}
     steps:
@@ -92,30 +93,34 @@ jobs:
       #   if: matrix.build.platform == 'linux/arm64'
       #   run: |
       #     sudo apt-get install -y gcc-aarch64-linux-gnu g++-aarch64-linux-gnu
+
       # macos 安装依赖
-      # - name: install dependencies (macos only)
-      #   if: matrix.build.os == 'macos-latest'
-      #   run: |
-      #     brew install libusb
+      - name: install dependencies (macos only)
+        if: matrix.build.os == 'macos-latest'
+        run: |
+          brew install libusb
 
       # windows 安装依赖
-      # - name: install msys2 (windows only)
-      #   if: matrix.build.os == 'windows-latest'
-      #   uses: msys2/setup-msys2@v2
-      #   with:
-      #     # msystem: UCRT64
-      #     update: true
-      #     release: false
-      # - name: set environment variables (windows only)
-      #   if: matrix.build.os == 'windows-latest'
-      #   shell: powershell
-      #   run: |
-      #     $env:Path+=";C:\msys64\ucrt64\bin"
-      # - name: install dependencies (windows only)
-      #   if: matrix.build.os == 'windows-latest'
-      #   shell: msys2 {0}
-      #   run: |
-      #     pacman -S --noconfirm --needed mingw-w64-x86_64-gcc mingw-w64-x86_64-libusb mingw-w64-x86_64-pkg-config mingw-w64-x86_64-upx
+      - name: install msys2 (windows only)
+        if: matrix.build.os == 'windows-latest'
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: "UCRT64"
+          update: true
+          release: false
+      - name: install dependencies (windows only)
+        if: matrix.build.os == 'windows-latest'
+        shell: msys2 {0}
+        run: |
+          pacman -S --noconfirm --needed mingw-w64-ucrt-x86_64-gcc 
+          pacman -S --noconfirm --needed mingw-w64-ucrt-x86_64-libusb 
+          pacman -S --noconfirm --needed mingw-w64-ucrt-x86_64-pkg-config 
+          pacman -S --noconfirm --needed mingw-w64-ucrt-x86_64-upx
+      - name: set environment variables (windows only)
+        if: matrix.build.os == 'windows-latest'
+        shell: powershell
+        run: |
+          $env:Path+=";C:\msys64\ucrt64\bin;C:\msys64\usr\bin"
 
       # 编译 windows
       # - name: Build wails
@@ -145,7 +150,7 @@ jobs:
       #       */bin/*
       - uses: dAppServer/wails-build-action@v2.2
         with:
-          build-name: wailsApp
-          build-platform: ${{matrix.build.platform}}
+          build-name: ${{ env.APP_NAME }}-${{matrix.build.platform}}
+          build-platform: ${{ matrix.build.platform }}
           go-version: ${{ env.GO_VERSION }}
           node-version: ${{ env.NODE_VERSION }}
