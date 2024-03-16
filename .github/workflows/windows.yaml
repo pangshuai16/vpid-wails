@@ -50,6 +50,7 @@ jobs:
             mingw-w64-ucrt-x86_64-pkg-config
             mingw-w64-ucrt-x86_64-upx
             mingw-w64-ucrt-x86_64-libusb
+          run: go install github.com/wailsapp/wails/v2/cmd/wails@latest
 
       # 前端打包
       - name: Setup pnpm
@@ -68,7 +69,6 @@ jobs:
       - name: Build wails (windows only)
         if: matrix.build.os == 'windows-latest'
         run: |
-          go install github.com/wailsapp/wails/v2/cmd/wails@latest
           wails doctor
           wails build -platform="${{ matrix.build.platform }}" -webview2=download  -ldflags="-extldflags=-static -w -s" -o ${{ env.APP_NAME }}-${{matrix.build.name}}
 
