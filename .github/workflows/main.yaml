@@ -50,8 +50,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        with:
-          submodules: recursive
+        # with:
+        #   submodules: recursive
 
       # set dependencies (linux only)
       - name: install dependencies (ubuntu only)
@@ -111,7 +111,9 @@ jobs:
       - name: Install Wails
         run: go install github.com/wailsapp/wails/v2/cmd/wails@latest
       - name: Build Wails App
-        run: wails build -s --platform ${{matrix.build.platform}} -o ${{ env.APP_NAME }} -ldflags "-extldflags=-static"
+        run: |
+          wails doctor
+          wails build -s --platform ${{matrix.build.platform}} -o ${{ env.APP_NAME }}
 
       # Upload build assets
       - uses: actions/upload-artifact@v4
