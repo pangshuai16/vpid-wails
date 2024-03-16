@@ -4,7 +4,7 @@ on:
   push:
     tags:
       # Match any new tag
-      - "v*"
+      - "v*.*.*"
 
 env:
   # Necessary for most environments as build failure can occur due to OOM issues
@@ -55,7 +55,7 @@ jobs:
 
       # set dependencies (linux only)
       - name: install dependencies (ubuntu only)
-        if: startsWith(matrix.build.os,'ubuntu')
+        if: startsWith(matrix.build.platform,'linux')
         run: |
           sudo apt-get update
           sudo apt-get install -y build-essential
@@ -112,7 +112,7 @@ jobs:
       - name: Install Wails
         run: go install github.com/wailsapp/wails/v2/cmd/wails@latest
       - name: Build Wails App (Linux Macos)
-        if: startsWith(matrix.build.os,'linux') || startsWith(matrix.build.os,'macos')
+        if: startsWith(matrix.build.platform,'linux') || startsWith(matrix.build.os,'macos')
         run: |
           wails doctor
           wails build -s --platform=${{matrix.build.platform}} -o=${{ env.APP_NAME }}-${{matrix.build.name}}
@@ -122,16 +122,19 @@ jobs:
         run: |
           export PATH="/c/Users/runneradmin/go/bin:/c/hostedtoolcache/windows/go/${{ env.GO_VERSION }}/x64/bin:$PATH"
           wails doctor
-          wails build -s --platform=${{matrix.build.platform}} -o=${{ env.APP_NAME }}-${{matrix.build.name}}
+          wails build -s --platform=${{matrix.build.platform}} -o=${{ env.APP_NAME }}-${{matrix.build.name}}.exe
       # Upload build assets
       - uses: actions/upload-artifact@v4
         with:
-          name: Wails Build ${{runner.os}} ${{ matrix.build.name }}
+          name: Wails Build ${{ matrix.build.name }}
           path: |
             */bin/
             *\bin\*
       - name: Release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
+        id: create_release
         with:
           files: |
             */bin/*
+          draft: true
+          prerelease: true
