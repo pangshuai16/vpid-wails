@@ -49,7 +49,7 @@ jobs:
         shell: bash
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           submodules: recursive
 
@@ -58,16 +58,21 @@ jobs:
         if: matrix.build.os == 'ubuntu-latest'
         run: |
           sudo apt-get update
-          sudo apt-get install libgtk-3-0 
-          sudo apt-get install libwebkit2gtk-4.0-dev 
-          sudo apt-get install gcc-aarch64-linux-gnu
-          sudo apt-get install libusb-1.0
-          sudo apt-get install upx
+          sudo apt-get install -y build-essential
+          sudo apt-get install -y gcc-aarch64-linux-gnu
+          sudo apt-get install -y pkg-config
+          sudo apt-get install -y libgtk-3-0
+          sudo apt-get install -y libgtk-3-0-dev
+          sudo apt-get install -y libwebkit2gtk-4.0
+          sudo apt-get install -y libwebkit2gtk-4.0-dev 
+          sudo apt-get install -y libusb-1.0
+          sudo apt-get install -y upx
 
       # set dependencies (macos only)
       - name: install dependencies (macos only)
         if: matrix.build.os == 'macos-13'
         run: |
+          brew install pkg-config
           brew install libusb
           brew install upx
           brew install mitchellh/gon/gon
@@ -75,10 +80,18 @@ jobs:
       # set dependencies (windows only)
       - name: install dependencies (windows only)
         if: matrix.build.os == 'windows-latest'
+        uses: msys2/setup-msys2@v2
+        with:
+          update: true
+          release: false
+          install: >
+            mingw-w64-x86_64-libusb
+      - name: install dependencies (windows only)
+        if: matrix.build.os == 'windows-latest'
         shell: powershell
         run: |
-          choco install libusbdotnet
           choco install upx
+          $env:Path+=";C:\msys64\usr\bin;C:\msys64\mingw64\bin;C:\msys64\mingw64\include;C:\msys64\mingw64\lib;"
 
       # Build UI
       - uses: actions/setup-node@v4
@@ -97,10 +110,10 @@ jobs:
       - name: Install Wails
         run: go install github.com/wailsapp/wails/v2/cmd/wails@latest
       - name: Build Wails App
-        run: wails build -s -upx -platform=${{matrix.build.platform}} -o=${{ env.APP_NAME }} -ldflags="-extldflags=-static -w -s"
+        run: wails build -s -upx --platform ${{matrix.build.platform}} -o ${{ env.APP_NAME }} -ldflags "-extldflags=-static"
 
       # Upload build assets
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: Wails Build ${{runner.os}} ${{ matrix.build.name }}
           path: |
