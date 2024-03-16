@@ -30,17 +30,15 @@ jobs:
               os: "windows-latest",
             },
             {
-              name: "linux-amd64",
-              platform: "linux/amd64",
+              name: "linux-arm64",
+              platform: "linux/amd64,linux/arm64",
               os: "ubuntu-latest",
             },
             {
-              name: "linux-arm64",
-              platform: "linux/arm64",
-              os: "ubuntu-latest",
+              name: "darwin-amd64",
+              platform: "darwin/amd64,darwin/arm64",
+              os: "macos-13",
             },
-            { name: "darwin-amd64", platform: "darwin/amd64", os: "macos-13" },
-            { name: "darwin-arm64", platform: "darwin/arm64", os: "macos-14" },
           ]
 
     runs-on: ${{ matrix.build.os }}
@@ -115,20 +113,20 @@ jobs:
         if: startsWith(matrix.build.platform,'linux') || startsWith(matrix.build.os,'macos')
         run: |
           wails doctor
-          wails build -s --platform=${{matrix.build.platform}} -o=${{ env.APP_NAME }}-${{matrix.build.name}}
+          wails build -s --platform="${{matrix.build.platform}}" -ldflags="-extldflags=-static -s -w"
       - name: Build Wails App (Windows)
         if: startsWith(matrix.build.os,'windows')
         shell: msys2 {0}
         run: |
           export PATH="/c/Users/runneradmin/go/bin:/c/hostedtoolcache/windows/go/${{ env.GO_VERSION }}/x64/bin:$PATH"
           wails doctor
-          wails build -s --platform=${{matrix.build.platform}} -o=${{ env.APP_NAME }}-${{matrix.build.name}}.exe
+          wails build -s --platform="${{matrix.build.platform}}" webview2=embedded -ldflags="-extldflags=-static -s -w -H windowsgui"
       # Upload build assets
       - uses: actions/upload-artifact@v4
         with:
           name: Wails Build ${{ matrix.build.name }}
           path: |
-            */bin/
+            */bin/*
             *\bin\*
       - name: Release
         uses: softprops/action-gh-release@v2
