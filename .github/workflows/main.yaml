@@ -15,6 +15,20 @@ env:
   GO_VERSION: "1.21.8"
 
 jobs:
+  # 任务：创建 release 版本
+  create-release:
+    permissions:
+      contents: write
+    runs-on: ubuntu-latest
+    outputs:
+      RELEASE_UPLOAD_ID: ${{ steps.create_release.outputs.id }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Create Release
+        id: create_release
+        uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/')
+
   build:
     permissions:
       contents: write
@@ -111,14 +125,14 @@ jobs:
         if: startsWith(matrix.build.platform,'linux') || startsWith(matrix.build.os,'macos')
         run: |
           wails doctor
-          wails build -s --platform="${{matrix.build.platform}}" -o ${{ env.APP_NAME }}-${{ matrix.build.name }}
+          wails build -s --platform="${{matrix.build.platform}}" -o ${{ env.APP_NAME }}-${{ matrix.build.name }} -ldflags "-extldflags=-static"
       - name: Build Wails App (Windows)
         if: startsWith(matrix.build.os,'windows')
         shell: msys2 {0}
         run: |
           export PATH="/c/Users/runneradmin/go/bin:/c/hostedtoolcache/windows/go/${{ env.GO_VERSION }}/x64/bin:$PATH"
           wails doctor
-          wails build -s --platform "${{matrix.build.platform}}" -webview2 embedded -ldflags "-extldflags=-static" -o ${{ env.APP_NAME }}-${{ matrix.build.name }}.exe
+          wails build -s --platform "${{matrix.build.platform}}" -webview2 embedded -o ${{ env.APP_NAME }}-${{ matrix.build.name }}.exe -ldflags "-extldflags=-static"
 
       # Upload build assets
       - uses: actions/upload-artifact@v4
@@ -129,8 +143,7 @@ jobs:
       - name: Release
         if: startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v2
-        id: create_release
         with:
-          files: "./build/bin"
+          files: "*"
           draft: true
           prerelease: true
