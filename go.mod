@@ -1,4 +1,4 @@
-module changeme
+module usb_list
 
 go 1.21
 
