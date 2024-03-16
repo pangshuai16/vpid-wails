@@ -111,10 +111,16 @@ jobs:
       - name: Install Wails
         run: go install github.com/wailsapp/wails/v2/cmd/wails@latest
       - name: Build Wails App
+        if: startsWith(matrix.build.os,'linux') || startsWith(matrix.build.os,'macos')
         run: |
           wails doctor
-          wails build -s --platform ${{matrix.build.platform}} -o ${{ env.APP_NAME }}
-
+          wails build -s --platform ${{matrix.build.platform}}
+      - name: Build Wails App (Windows)
+        if: startsWith(matrix.build.os,'windows')
+        shell: powershell
+        run: |
+          wails doctor
+          wails build -s --platform ${{matrix.build.platform}}
       # Upload build assets
       - uses: actions/upload-artifact@v4
         with:
