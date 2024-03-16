@@ -74,6 +74,6 @@ jobs:
           pre_command: "go install github.com/wailsapp/wails/v2/cmd/wails@latest"
           build_command: wails build -s -upx -webview2=download
           ldflags: "-extldflags=-static -w -s"
-          build_flags: -platform="${{ matrix.goos }}/${{ matrix.goarch }}"
+          build_flags: -platform=${{ matrix.goos }}/${{ matrix.goarch }}
           compress_assets: OFF
           goversion: ${{ env.GO_VERSION }}
