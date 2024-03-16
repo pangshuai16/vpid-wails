@@ -9,10 +9,10 @@ on:
 env:
   # Necessary for most environments as build failure can occur due to OOM issues
   APP_NAME: "usb_list"
-  NODE_OPTIONS: "--max-old-space-size=4096"
-  NODE_VERSION: "20"
-  PNPM_VERSION: "8.10.0"
-  GO_VERSION: "1.21"
+  # NODE_OPTIONS: "--max-old-space-size=4096"
+  # NODE_VERSION: "20"
+  # PNPM_VERSION: "8.10.0"
+  GO_VERSION: "1.21.8"
 
 jobs:
   build:
@@ -51,17 +51,13 @@ jobs:
         if: matrix.build.os == 'ubuntu-latest'
         run: |
           sudo apt-get update
-          sudo apt-get install -y golang-go upx-ucl libusb-1.0
-          curl -fsSL https://bun.sh/install | bash
-          cd frontend && bun install && bun run build
+          sudo apt-get install -y upx-ucl libusb-1.0
 
       # macos 安装依赖
       - name: install dependencies (macos only)
         if: matrix.build.os == 'macos-latest'
         run: |
-          brew install go upx libusb
-          curl -fsSL https://bun.sh/install | bash
-          cd frontend && bun install && bun run build
+          brew install upx libusb
 
       # windows 安装依赖
       - name: install msys2 (windows only)
@@ -72,24 +68,22 @@ jobs:
           update: true
           release: false
           install: >-
-            mingw-w64-ucrt-x86_64-go
-            mingw-w64-ucrt-x86_64-nodejs
             mingw-w64-ucrt-x86_64-pkg-config
             mingw-w64-ucrt-x86_64-upx
             mingw-w64-ucrt-x86_64-libusb
-          run: |
-            cd frontend && npm install && npm run build
+
+      # 前端打包
+      - name: Web Build
+        run: |
+          cd frontend
+          bun install --frozen-lockfile
+          bun run build
 
       # 安装 wails
-      - name: Install Wails (windows only)
-        if: matrix.build.os == 'windows-latest'
-        shell: msys2 {0}
-        run: |
-          go env
-          go install github.com/wailsapp/wails/v2/cmd/wails@latest
-      - name: Install Wails (linux & macos)
-        if: matrix.build.os != 'windows-latest'
-        run: |
+      - uses: actions/setup-go@v5
+        with:
+          go-version: ${{env.GO_VERSION}} # The Go version to download (if necessary) and use.
+      - run: |
           go env
           go install github.com/wailsapp/wails/v2/cmd/wails@latest
 
@@ -98,11 +92,12 @@ jobs:
         if: matrix.build.os == 'windows-latest'
         shell: msys2 {0}
         run: |
-          wails build -s -platform="${{ matrix.build.platform }}" -webview2=download  -ldflags="-extldflags=-static -w" -o ${{ env.APP_NAME }}-${{matrix.build.name}}
+          export PATH="/c/Users/runneradmin/go/bin:/c/hostedtoolcache/windows/go/${{ env.GO_VERSION }}/x64/bin:$PATH"
+          wails build -s -platform="${{ matrix.build.platform }}" -webview2=download  -ldflags="-extldflags=-static -w -s" -o ${{ env.APP_NAME }}-${{matrix.build.name}}
       - name: Build wails (linux & macos)
         if: matrix.build.os != 'windows-latest'
         run: |
-          wails build -s -platform="${{ matrix.build.platform }}" -webview2=download  -ldflags="-w" -o ${{ env.APP_NAME }}-${{matrix.build.name}}
+          wails build -s -platform="${{ matrix.build.platform }}" -ldflags="-extldflags=-static -w -s" -o ${{ env.APP_NAME }}-${{matrix.build.name}}
 
       # 发布 release
       - uses: actions/upload-artifact@v3
