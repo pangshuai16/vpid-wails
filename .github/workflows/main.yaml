@@ -12,7 +12,7 @@ env:
   NODE_OPTIONS: "--max-old-space-size=4096"
   NODE_VERSION: "20"
   PNPM_VERSION: "8"
-  GO_VERSION: "1.22"
+  GO_VERSION: "1.21.8"
 
 jobs:
   build:
@@ -50,8 +50,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        # with:
-        #   submodules: recursive
+        with:
+          submodules: recursive
 
       # set dependencies (linux only)
       - name: install dependencies (ubuntu only)
@@ -115,14 +115,14 @@ jobs:
         if: startsWith(matrix.build.os,'linux') || startsWith(matrix.build.os,'macos')
         run: |
           wails doctor
-          wails build -s --platform ${{matrix.build.platform}}
+          wails build -s --platform=${{matrix.build.platform}} -o=${{ env.APP_NAME }}-${{matrix.build.name}}
       - name: Build Wails App (Windows)
         if: startsWith(matrix.build.os,'windows')
         shell: msys2 {0}
         run: |
           export PATH="/c/Users/runneradmin/go/bin:/c/hostedtoolcache/windows/go/${{ env.GO_VERSION }}/x64/bin:$PATH"
           wails doctor
-          wails build -s --platform ${{matrix.build.platform}}
+          wails build -s --platform=${{matrix.build.platform}} -o=${{ env.APP_NAME }}-${{matrix.build.name}}
       # Upload build assets
       - uses: actions/upload-artifact@v4
         with:
