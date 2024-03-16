@@ -95,9 +95,9 @@ jobs:
         with:
           go-version: ${{ env.GO_VERSION }}
       - name: Install Wails
-        shell: bash
         run: go install github.com/wailsapp/wails/v2/cmd/wails@latest
-      - run: wails build -platform=${{matrix.build.platform}} -o=${{ env.APP_NAME }} -ldflags="-extldflags=-static -w -s"
+      - name: Build Wails App
+        run: wails build -s -upx -platform=${{matrix.build.platform}} -o=${{ env.APP_NAME }} -ldflags="-extldflags=-static -w -s"
 
       # Upload build assets
       - uses: actions/upload-artifact@v3
