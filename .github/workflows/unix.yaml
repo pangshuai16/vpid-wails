@@ -51,6 +51,18 @@ jobs:
         run: |
           brew install pkg-config libusb upx
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: ${{env.PNPM_VERSION}}
+          run_install: false
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "pnpm"
+          cache-dependency-path: "frontend/pnpm-lock.yaml"
+
       - uses: dAppServer/wails-build-action@v2.2
         with:
           build-name: ${{ env.APP_NAME }}-${{matrix.build.name}}
