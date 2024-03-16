@@ -60,8 +60,6 @@ jobs:
           submodules: recursive
 
       # ubuntu 安装依赖
-      - uses: actions/setup-go@v5
-        if: matrix.build.os == 'ubuntu-latest'
       - name: install dependencies (ubuntu only)
         if: matrix.build.os == 'ubuntu-latest'
         shell: bash
@@ -80,7 +78,6 @@ jobs:
         shell: bash
         if: matrix.build.os == 'macos-latest'
         run: |
-          brew install go@1.21
           brew install gcc
           brew install pkg-config
           brew install libusb
@@ -95,7 +92,6 @@ jobs:
           update: true
           release: false
           install: >-
-            mingw-w64-ucrt-x86_64-go
             mingw-w64-ucrt-x86_64-pkg-config
             mingw-w64-ucrt-x86_64-upx
             mingw-w64-ucrt-x86_64-libusb
@@ -119,25 +115,32 @@ jobs:
           pnpm run build
 
       # 编译
+      - uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+      - run: go install github.com/wailsapp/wails/v2/cmd/wails@latest
       - name: Build wails (windows only)
         if: matrix.build.os == 'windows-latest'
         shell: msys2 {0}
         run: |
-          go install github.com/wailsapp/wails/v2/cmd/wails@latest
+          export PATH="/c/Users/runneradmin/go/bin:/c/hostedtoolcache/windows/go/${{ env.GO_VERSION }}/x64/bin:$PATH"
           echo "-------------"
           which wails
           echo "-------------"
           wails doctor
+          pkg-config --cflags libusb-1.0
+          pkg-config --libs libusb-1.0
           wails build -s -upx -platform="${{ matrix.build.platform }}" -webview2=download  -ldflags="-extldflags=-static -w -s" -o ${{ env.APP_NAME }}-${{matrix.build.name}}
       - name: Build wails (linux & macos)
         if: matrix.build.os != 'windows-latest'
         shell: bash
         run: |
-          go install github.com/wailsapp/wails/v2/cmd/wails@latest
           echo "-------------"
           which wails
           echo "-------------"
           wails doctor
+          pkg-config --cflags libusb-1.0
+          pkg-config --libs libusb-1.0
           wails build -s -upx -platform="${{ matrix.build.platform }}" -ldflags="-extldflags=-static -w -s" -o ${{ env.APP_NAME }}-${{matrix.build.name}}
 
       # 发布 release
