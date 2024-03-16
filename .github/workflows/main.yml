@@ -87,8 +87,11 @@ jobs:
         if: matrix.build.os == 'ubuntu-latest'
         run: |
           sudo apt-get update
-          sudo apt-get install -y libusb-1.0
-
+          sudo apt-get install -y libusb-1.0 libgtk-3-dev libwebkit2gtk-4.0-dev upx-ucl
+      - name: install arm64 dependencies (linux only)
+        if: matrix.build.platform == 'linux/arm64'
+        run: |
+          sudo apt-get install -y build-essential gcc-aarch64-linux-gnu
       # macos 安装依赖
       - name: install dependencies (macos only)
         if: matrix.build.os == 'macos-latest'
@@ -112,9 +115,7 @@ jobs:
         if: matrix.build.os == 'windows-latest'
         shell: msys2 {0}
         run: |
-          pacman -S --noconfirm --needed mingw-w64-x86_64-gcc mingw-w64-x86_64-libusb mingw-w64-x86_64-pkg-config
-          pkg-config --cflags libusb-1.0
-          pkg-config --libs libusb-1.0
+          pacman -S --noconfirm --needed mingw-w64-x86_64-gcc mingw-w64-x86_64-libusb mingw-w64-x86_64-pkg-config mingw-w64-x86_64-upx
 
       # 编译 windows
       - name: Build wails
@@ -122,12 +123,12 @@ jobs:
         shell: msys2 {0}
         run: |
           export PATH="/c/Users/runneradmin/go/bin:/c/hostedtoolcache/windows/go/${{ env.GO_VERSION }}/x64/bin:$PATH"
-          wails build -s -platform="${{ matrix.build.platform }}" -webview2=download  -ldflags="-extldflags=-static -w"
+          wails build -s -platform="${{ matrix.build.platform }}" -upx -webview2=download  -ldflags="-extldflags=-static -w"
       # 编译 非 windows
       - name: Build wails not windows
         if: matrix.build.os != 'windows-latest'
         run: |
-          wails build -s -platform="${{ matrix.build.platform }}"  -ldflags="-extldflags=-static -w"
+          wails build -s -platform="${{ matrix.build.platform }}" -upx -ldflags="-extldflags=-static -w"
       # 发布 release
       - uses: actions/upload-artifact@v3
         with:
