@@ -94,6 +94,7 @@ jobs:
           update: true
           release: false
           install: >-
+            mingw-w64-ucrt-x86_64-go
             mingw-w64-ucrt-x86_64-pkg-config
             mingw-w64-ucrt-x86_64-upx
             mingw-w64-ucrt-x86_64-libusb
