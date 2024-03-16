@@ -12,7 +12,7 @@ env:
   NODE_OPTIONS: "--max-old-space-size=4096"
   NODE_VERSION: "20"
   PNPM_VERSION: "8"
-  GO_VERSION: "1.21.8"
+  GO_VERSION: "1.22"
 
 jobs:
   build:
@@ -70,6 +70,7 @@ jobs:
       - name: install dependencies (macos only)
         if: startsWith(matrix.build.os,'macos')
         run: |
+          brew install gcc
           brew install pkg-config
           brew install libusb
           brew install upx
@@ -83,6 +84,7 @@ jobs:
           update: true
           release: false
           install: >
+            mingw-w64-x86_64-gcc
             mingw-w64-x86_64-pkg-config
             mingw-w64-x86_64-libusb
       - name: install dependencies (windows only)
@@ -90,7 +92,7 @@ jobs:
         shell: powershell
         run: |
           choco install upx
-          $env:Path+=";C:\msys64\usr\bin;C:\msys64\mingw64\bin;C:\msys64\mingw64\include;C:\msys64\mingw64\lib;"
+          $env:Path="C:\msys64\usr\bin;C:\msys64\mingw64\bin;C:\msys64\mingw64\include;C:\msys64\mingw64\lib;$env:Path"
 
       # Build UI
       - uses: actions/setup-node@v4
