@@ -28,9 +28,7 @@ jobs:
             os: "windows-latest"
 
     runs-on: ${{ matrix.build.os }}
-    defaults:
-      run:
-        shell: msys2 {0}
+
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -50,7 +48,6 @@ jobs:
             mingw-w64-ucrt-x86_64-pkg-config
             mingw-w64-ucrt-x86_64-upx
             mingw-w64-ucrt-x86_64-libusb
-          run: go install github.com/wailsapp/wails/v2/cmd/wails@latest
 
       # 前端打包
       - name: Setup pnpm
@@ -65,10 +62,12 @@ jobs:
           cache: "pnpm"
           cache-dependency-path: "frontend/pnpm-lock.yaml"
 
-      # 编译
+      # wails 编译
       - name: Build wails (windows only)
         if: matrix.build.os == 'windows-latest'
+        shell: msys2 {0}
         run: |
+          go install github.com/wailsapp/wails/v2/cmd/wails@latest
           wails doctor
           wails build -platform="${{ matrix.build.platform }}" -webview2=download  -ldflags="-extldflags=-static -w -s" -o ${{ env.APP_NAME }}-${{matrix.build.name}}
 

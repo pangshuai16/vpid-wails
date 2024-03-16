@@ -31,10 +31,10 @@ jobs:
             os: "ubuntu-latest"
           - name: "macos-amd64"
             platform: "darwin/amd64"
-            os: "macos-13"
+            os: "macos-latest"
           - name: "macos-arm64"
             platform: "darwin/arm64"
-            os: "macos-14"
+            os: "macos-latest"
 
     runs-on: ${{ matrix.build.os }}
     steps:
@@ -51,8 +51,7 @@ jobs:
           sudo apt-get install -y pkg-config 
           sudo apt-get install -y libusb-1.0 
           sudo apt-get install -y upx-ucl 
-          sudo apt-get install -y binutils-aarch64-linux-gnu
-          sudo apt-get install -y musl-dev
+          sudo apt-get install -y crossbuild-essential-arm64
       # macos 安装依赖
       - name: install dependencies (mac only)
         if: matrix.build.os == 'macos-latest'
