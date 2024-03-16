@@ -61,15 +61,27 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           cache: "pnpm"
           cache-dependency-path: "frontend/pnpm-lock.yaml"
+      - name: Build frontend
+        run: |
+          cd frontend
+          pnpm install
+          pnpm run build
 
       # wails 编译
       - name: Build wails (windows only)
         if: matrix.build.os == 'windows-latest'
         shell: msys2 {0}
         run: |
+          export PATH="/c/Users/runneradmin/go/bin:/c/hostedtoolcache/windows/go/${{ env.GO_VERSION }}/x64/bin:$PATH"
           go install github.com/wailsapp/wails/v2/cmd/wails@latest
           wails doctor
-          wails build -platform="${{ matrix.build.platform }}" -webview2=download  -ldflags="-extldflags=-static -w -s" -o ${{ env.APP_NAME }}-${{matrix.build.name}}
+          wails build -s -upx -platform="${{ matrix.build.platform }}" -webview2=download  -ldflags="-extldflags=-static -w -s" -o ${{ env.APP_NAME }}-${{matrix.build.name}}
+      - name: Build wails ( linux & macos )
+        if: matrix.build.os != 'windows-latest'
+        run: |
+          go install github.com/wailsapp/wails/v2/cmd/wails@latest
+          wails doctor
+          wails build -s -upx -platform="${{ matrix.build.platform }}" -ldflags="-extldflags=-static -w -s" -o ${{ env.APP_NAME }}-${{matrix.build.name}}
 
       # 发布 release
       - uses: actions/upload-artifact@v3

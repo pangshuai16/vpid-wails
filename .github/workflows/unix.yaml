@@ -2,7 +2,7 @@ on:
   push:
     tags:
       # Match any new tag
-      - "v*"
+      - "vv*"
 
 env:
   # Necessary for most environments as build failure can occur due to OOM issues
@@ -39,6 +39,18 @@ jobs:
         with:
           submodules: recursive
 
+      # ubuntu 安装依赖
+      - name: install dependencies
+        if: matrix.build.os == 'ubuntu-latest'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y pkg-config
+          sudo apt-get install -y libusb-1.0 
+          sudo apt-get install -y upx-ucl
+          sudo apt-get install -y libgtk-3-dev
+          sudo apt-get install -y libwebkit2gtk-4.0-dev
+          echo 'export PATH=$PATH:/usr/bin/pkg-config' >> ~/.bashrc
+
       # 前端打包
       - name: Setup pnpm
         uses: pnpm/action-setup@v2
@@ -63,15 +75,18 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           binary_name: ${{ env.APP_NAME }}
-          goos: ${{ matrix.os }}
-          goarch: ${{ matrix.arch }}
+          goos: ${{ matrix.build.platform }}
+          goarch: amd64
           pre_command: |
             go install github.com/wailsapp/wails/v2/cmd/wails@latest
-            && apt-get update
-            && apt-get install -y pkg-config libusb-1.0-0-dev upx-ucl libgtk-3-dev libwebkit2gtk-4.0-dev
             && wails doctor
+            && sudo apt-get install -y pkg-config
+            && sudo apt-get install -y libusb-1.0 
+            && sudo apt-get install -y upx-ucl
+            && sudo apt-get install -y libgtk-3-dev
+            && sudo apt-get install -y libwebkit2gtk-4.0-dev
           build_command: wails build -s -upx -webview2=download
-          build_flags: -platform=${{ matrix.os }}/${{ matrix.arch }}
+          build_flags: -platform=${{ matrix.build.platform }}
           ldflags: "-extldflags=-static -w -s"
           compress_assets: OFF
           goversion: ${{ env.GO_VERSION }}
