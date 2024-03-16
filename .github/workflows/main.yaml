@@ -44,42 +44,70 @@ jobs:
           ]
 
     runs-on: ${{ matrix.build.os }}
-
+    defaults:
+      run:
+        shell: bash
     steps:
       - name: Checkout
         uses: actions/checkout@v2
         with:
           submodules: recursive
 
-      # ubuntu 安装依赖
+      # set dependencies (linux only)
       - name: install dependencies (ubuntu only)
         if: matrix.build.os == 'ubuntu-latest'
-        shell: bash
         run: |
           sudo apt-get update
-          sudo apt-get install -y libusb-1.0
+          sudo apt-get install libgtk-3-0 
+          sudo apt-get install libwebkit2gtk-4.0-dev 
+          sudo apt-get install gcc-aarch64-linux-gnu
+          sudo apt-get install libusb-1.0
+          sudo apt-get install upx
 
-      # macos 安装依赖
+      # set dependencies (macos only)
       - name: install dependencies (macos only)
-        shell: bash
         if: matrix.build.os == 'macos-13'
         run: |
           brew install libusb
+          brew install upx
+          brew install mitchellh/gon/gon
 
-      # windows 安装依赖
+      # set dependencies (windows only)
       - name: install dependencies (windows only)
         if: matrix.build.os == 'windows-latest'
         shell: powershell
         run: |
           choco install libusbdotnet
+          choco install upx
 
-      # 编译
-      - name: Wails Build Action with upx
-        uses: mikulicf/wails-build-action@v1.0.1
+      # Build UI
+      - uses: actions/setup-node@v4
         with:
-          build-name: ${{ env.APP_NAME }}
-          build-platform: ${{matrix.build.platform}}
-          go-version: ${{ env.GO_VERSION }}
           node-version: ${{ env.NODE_VERSION }}
-          nsis: false
-          ldflags: "-extldflags=-static -w -s"
+      - name: Build WebUI
+        run: |
+          cd frontend
+          npm install
+          npm run build
+
+      # Build Wails
+      - uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+      - name: Install Wails
+        shell: bash
+        run: go install github.com/wailsapp/wails/v2/cmd/wails@latest
+      - run: wails build -platform=${{matrix.build.platform}} -o=${{ env.APP_NAME }} -ldflags="-extldflags=-static -w -s"
+
+      # Upload build assets
+      - uses: actions/upload-artifact@v3
+        with:
+          name: Wails Build ${{runner.os}} ${{ matrix.build.name }}
+          path: |
+            */bin/
+            *\bin\*
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            */bin/*
