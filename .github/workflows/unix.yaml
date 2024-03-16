@@ -4,7 +4,7 @@ on:
   push:
     tags:
       # Match any new tag
-      - "v*"
+      - "vv*"
 
 env:
   # Necessary for most environments as build failure can occur due to OOM issues
@@ -20,11 +20,23 @@ jobs:
     permissions:
       contents: write
     strategy:
-      fail-fast: true
+      fail-fast: false
       matrix:
-        platform: [amd64, arm64]
+        build:
+          - name: "linux-amd64"
+            platform: "linux/amd64"
+            os: "ubuntu-latest"
+          - name: "linux-arm64"
+            platform: "linux/arm64"
+            os: "ubuntu-latest"
+          - name: "windows-amd64"
+            platform: "windows/amd64"
+            os: "windows-latest"
+          - name: "macos-amd64"
+            platform: "darwin/amd64"
+            os: "macos-latest"
 
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.build.os }}
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -39,7 +51,7 @@ jobs:
 
       - uses: dAppServer/wails-build-action@v2.2
         with:
-          build-name: ${{ env.APP_NAME }}-${{matrix.platform}}
-          build-platform: linux/${{ matrix.platform }}
+          build-name: ${{ env.APP_NAME }}-${{matrix.build.name}}
+          build-platform: ${{ matrix.build.platform }}
           go-version: ${{ env.GO_VERSION }}
           node-version: ${{ env.NODE_VERSION }}
