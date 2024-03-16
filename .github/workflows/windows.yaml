@@ -81,6 +81,7 @@ jobs:
           update: true
           release: false
           install: >-
+            mingw-w64-ucrt-x86_64-go
             mingw-w64-ucrt-x86_64-pkg-config
             mingw-w64-ucrt-x86_64-upx
             mingw-w64-ucrt-x86_64-libusb
@@ -93,19 +94,21 @@ jobs:
       - run: cd frontend && npm install && npm run build
 
       # 安装 wails
-      - uses: actions/setup-go@v5
+      - name: setup go (linux & macos)
+        uses: actions/setup-go@v5
+        if: matrix.build.os != 'windows-latest'
         with:
-          go-version: ${{env.GO_VERSION}} # The Go version to download (if necessary) and use.
+          go-version: ${{env.GO_VERSION}}
       - run: |
           go env
           go install github.com/wailsapp/wails/v2/cmd/wails@latest
+          wails doctor
 
       # 编译
       - name: Build wails
         if: matrix.build.os == 'windows-latest'
         shell: msys2 {0}
         run: |
-          export PATH="/c/Users/runneradmin/go/bin:/c/hostedtoolcache/windows/go/${{ env.GO_VERSION }}/x64/bin:$PATH"
           wails build -s -platform="${{ matrix.build.platform }}" -webview2=download  -ldflags="-extldflags=-static -w -s" -o ${{ env.APP_NAME }}-${{matrix.build.name}}
       - name: Build wails (linux & macos)
         if: matrix.build.os != 'windows-latest'
