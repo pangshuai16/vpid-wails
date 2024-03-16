@@ -57,90 +57,29 @@ jobs:
         shell: bash
         run: |
           sudo apt-get update
-          sudo apt-get install -y build-essential crossbuild-essential-arm64
-          sudo apt-get install -y pkg-config
           sudo apt-get install -y libusb-1.0
-          sudo apt-get install -y libgtk-3.0
-          sudo apt-get install -y libgtk-3-dev
-          sudo apt-get install -y libwebkit2gtk-4.0
-          sudo apt-get install -y libwebkit2gtk-4.0-dev
-          sudo apt-get install -y upx-ucl
 
       # macos 安装依赖
       - name: install dependencies (macos only)
         shell: bash
         if: matrix.build.os == 'macos-13'
         run: |
-          brew install gcc
-          brew install pkg-config
           brew install libusb
-          brew install upx
 
       # windows 安装依赖
-      - name: install msys2 (windows only)
-        if: matrix.build.os == 'windows-latest'
-        uses: msys2/setup-msys2@v2
-        with:
-          update: true
-          release: false
-          install: >-
-            mingw-w64-x86_64-gcc
-            mingw-w64-x86_64-pkg-config
-            mingw-w64-x86_64-upx
-            mingw-w64-x86_64-libusb
-      - name: set environment variables (windows only)
+      - name: install dependencies (windows only)
         if: matrix.build.os == 'windows-latest'
         shell: powershell
         run: |
-          $env:PKG_CONFIG_PATH="C:\msys64\mingw64\bin"
-          $env:Path+=";C:\msys64\usr\bin;C:\msys64\mingw64\bin;C:\msys64\mingw64\include;C:\msys64\mingw64\lib"
-
-      # 前端打包
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v2
-        with:
-          version: ${{ env.PNPM_VERSION }}
-          run_install: false
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: "pnpm"
-          cache-dependency-path: "frontend/pnpm-lock.yaml"
-      - name: Build frontend
-        run: |
-          cd frontend
-          pnpm install
-          pnpm run build
+          choco install libusbdotnet
 
       # 编译
-      - uses: actions/setup-go@v5
+      - name: Wails Build Action with upx
+        uses: mikulicf/wails-build-action@v1.0.1
         with:
+          build-name: ${{ env.APP_NAME }}
+          build-platform: ${{matrix.build.platform}}
           go-version: ${{ env.GO_VERSION }}
-      - run: |
-          pkg-config --cflags libusb-1.0
-          pkg-config --libs libusb-1.0
-          go install github.com/wailsapp/wails/v2/cmd/wails@latest
-
-      - name: Build wails (linux & macos)
-        run: |
-          echo "-------------"
-          which wails
-          echo "-------------"
-          wails doctor
-          wails build -s -upx -platform="${{ matrix.build.platform }}" -ldflags="-extldflags=-static -w -s" -o ${{ env.APP_NAME }}-${{matrix.build.name}}
-
-      # 发布 release
-      - uses: actions/upload-artifact@v3
-        with:
-          name: Wails Build ${{runner.os}} ${{matrix.build.name}}
-          path: |
-            */bin/
-            *\bin\*
-      - name: Create Release
-        if: startsWith(github.ref, 'refs/tags/')
-        id: create_release
-        uses: softprops/action-gh-release@v1
-        with:
-          files: |
-            */bin/*
+          node-version: ${{ env.NODE_VERSION }}
+          nsis: false
+          ldflags: "-extldflags=-static -w -s"
