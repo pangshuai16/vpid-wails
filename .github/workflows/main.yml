@@ -124,7 +124,7 @@ jobs:
       - name: Build wails not windows
         if: matrix.build.os != 'windows-latest'
         run: |
-          wails build -s -platform="${{ matrix.build.platform }}" -webview2=download  -ldflags="-extldflags=-static -w"
+          wails build -s -platform="${{ matrix.build.platform }}"  -ldflags="-extldflags=-static -w"
       # 发布 release
       - uses: actions/upload-artifact@v3
         with:
