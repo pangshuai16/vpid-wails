@@ -45,7 +45,7 @@ jobs:
         if: matrix.build.os == 'ubuntu-latest'
         run: |
           sudo apt-get update
-          sudo apt-get install -y pkg-config libusb-1.0 upx-ucl
+          sudo apt-get install -y pkg-config libusb-1.0 upx-ucl binutils-aarch64-linux-gnu
       - name: install dependencies (mac only)
         if: matrix.build.os == 'macos-latest'
         run: |
@@ -65,7 +65,7 @@ jobs:
 
       - uses: dAppServer/wails-build-action@v2.2
         with:
-          build-name: ${{ env.APP_NAME }}-${{matrix.build.name}}
+          build-name: ${{ env.APP_NAME }}
           build-platform: ${{ matrix.build.platform }}
           go-version: ${{ env.GO_VERSION }}
           node-version: ${{ env.NODE_VERSION }}

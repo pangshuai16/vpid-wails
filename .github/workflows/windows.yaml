@@ -11,7 +11,7 @@ env:
   APP_NAME: "usb_list"
   NODE_OPTIONS: "--max-old-space-size=4096"
   NODE_VERSION: "20"
-  # PNPM_VERSION: "8.10.0"
+  PNPM_VERSION: "8"
   GO_VERSION: "1.21.8"
 
 jobs:
@@ -52,12 +52,17 @@ jobs:
             mingw-w64-ucrt-x86_64-libusb
 
       # 前端打包
-      - name: setup node
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: ${{env.PNPM_VERSION}}
+          run_install: false
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-      - shell: powershell
-        run: cd frontend && npm install && npm run build
+          cache: "pnpm"
+          cache-dependency-path: "frontend/pnpm-lock.yaml"
 
       # 编译
       - name: Build wails (windows only)
@@ -65,7 +70,7 @@ jobs:
         run: |
           go install github.com/wailsapp/wails/v2/cmd/wails@latest
           wails doctor
-          wails build -s -platform="${{ matrix.build.platform }}" -webview2=download  -ldflags="-extldflags=-static -w -s" -o ${{ env.APP_NAME }}-${{matrix.build.name}}
+          wails build -platform="${{ matrix.build.platform }}" -webview2=download  -ldflags="-extldflags=-static -w -s" -o ${{ env.APP_NAME }}-${{matrix.build.name}}
 
       # 发布 release
       - uses: actions/upload-artifact@v3
