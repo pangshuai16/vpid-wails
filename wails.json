@@ -10,5 +10,5 @@
     "name": "pangshuai16",
     "email": "chauncytu@gmail.com"
   },
-  "ldflags": ["-extldflags=-static", "-s", "-w"]
+  "ldflags": ["-extldflags=-static"]
 }
