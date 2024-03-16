@@ -39,8 +39,8 @@ jobs:
               platform: "linux/arm64",
               os: "ubuntu-latest",
             },
-            { name: "darwin-amd64", platform: "darwin/amd64", os: "macos-13" },
-            { name: "darwin-arm64", platform: "darwin/arm64", os: "macos-13" },
+            { name: "darwin-amd64", platform: "darwin/amd64", os: "macos-11" },
+            { name: "darwin-arm64", platform: "darwin/arm64", os: "macos-11" },
           ]
 
     runs-on: ${{ matrix.build.os }}
@@ -62,11 +62,9 @@ jobs:
           sudo apt-get install -y gcc-aarch64-linux-gnu
           sudo apt-get install -y pkg-config
           sudo apt-get install -y libgtk-3-0
-          sudo apt-get install -y libgtk-3-0-dev
-          sudo apt-get install -y libwebkit2gtk-4.0
           sudo apt-get install -y libwebkit2gtk-4.0-dev 
           sudo apt-get install -y libusb-1.0
-          sudo apt-get install -y upx
+          sudo apt-get install -y upx-ucl
 
       # set dependencies (macos only)
       - name: install dependencies (macos only)
