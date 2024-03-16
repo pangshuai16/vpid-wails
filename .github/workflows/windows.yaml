@@ -73,10 +73,7 @@ jobs:
       # 前端打包
       - name: Web Build
         uses: oven-sh/setup-bun@v1
-      - run: |
-          cd frontend
-          bun install --frozen-lockfile
-          bun run build
+      - run: cd frontend && bun install && bun run build
 
       # 安装 wails
       - uses: actions/setup-go@v5
