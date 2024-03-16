@@ -62,9 +62,11 @@ jobs:
       # ubuntu 安装依赖
       - name: install dependencies (ubuntu only)
         if: matrix.build.os == 'ubuntu-latest'
+        shell: bash
         run: |
           sudo apt-get update
           sudo apt-get install -y build-essential crossbuild-essential-arm64
+          sudo apt-get install -y golang-go
           sudo apt-get install -y pkg-config
           sudo apt-get install -y libusb-1.0
           sudo apt-get install -y libusb-1.0-0-dev
@@ -74,8 +76,10 @@ jobs:
 
       # macos 安装依赖
       - name: install dependencies (macos only)
+        shell: bash
         if: matrix.build.os == 'macos-latest'
         run: |
+          brew install go
           brew install gcc
           brew install pkg-config
           brew install libusb
@@ -112,34 +116,22 @@ jobs:
           pnpm install
           pnpm run build
 
-      # 安装 wails
-      - name: setup go
-        uses: actions/setup-go@v5
-        with:
-          go-version: ${{env.GO_VERSION}}
-      - name: install wails
-        run: |
-          echo "------------------------------------------------"
-          which go
-          echo "------------------------------------------------"
-          go install github.com/wailsapp/wails/v2/cmd/wails@latest
-          echo "------------------------------------------------"
-          which wails
-          echo "------------------------------------------------"
-          wails doctor
-
       # 编译
       - name: Build wails (windows only)
         if: matrix.build.os == 'windows-latest'
         shell: msys2 {0}
         run: |
-          export PATH="/c/Users/runneradmin/go/bin:/c/hostedtoolcache/windows/go/${{ env.GO_VERSION }}/x64/bin:$PATH"
+          go install github.com/wailsapp/wails/v2/cmd/wails@latest
+          echo "-------------"
+          which wails
           echo "-------------"
           wails doctor
           wails build -s -upx -platform="${{ matrix.build.platform }}" -webview2=download  -ldflags="-extldflags=-static -w -s" -o ${{ env.APP_NAME }}-${{matrix.build.name}}
       - name: Build wails (linux & macos)
         if: matrix.build.os != 'windows-latest'
+        shell: bash
         run: |
+          go install github.com/wailsapp/wails/v2/cmd/wails@latest
           echo "-------------"
           which wails
           echo "-------------"
