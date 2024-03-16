@@ -60,13 +60,14 @@ jobs:
           submodules: recursive
 
       # ubuntu 安装依赖
+      - uses: actions/setup-go@v5
+        if: matrix.build.os == 'ubuntu-latest'
       - name: install dependencies (ubuntu only)
         if: matrix.build.os == 'ubuntu-latest'
         shell: bash
         run: |
           sudo apt-get update
           sudo apt-get install -y build-essential crossbuild-essential-arm64
-          sudo apt-get install -y golang-go
           sudo apt-get install -y pkg-config
           sudo apt-get install -y libusb-1.0
           sudo apt-get install -y libusb-1.0-0-dev
@@ -79,7 +80,7 @@ jobs:
         shell: bash
         if: matrix.build.os == 'macos-latest'
         run: |
-          brew install go
+          brew install go@1.21
           brew install gcc
           brew install pkg-config
           brew install libusb
