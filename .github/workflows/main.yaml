@@ -130,21 +130,21 @@ jobs:
           pkg-config --cflags libusb-1.0
           pkg-config --libs libusb-1.0
           wails doctor
-          wails build -s --platform="${{matrix.build.platform}}" -o="${{ env.APP_NAME }}-${{ matrix.build.name }}" -ldflags="-extldflags -L/usr/local/lib -lusb-1.0"
+          wails build -s --platform="${{matrix.build.platform}}" -o="${{ env.APP_NAME }}-${{ matrix.build.name }}" -ldflags="-extldflags=-static -s -w"
       - name: Build Wails App (macOS)
         if: startsWith(matrix.build.os,'macos')
         run: |
           pkg-config --cflags libusb-1.0
           pkg-config --libs libusb-1.0
           wails doctor
-          wails build -s --platform="${{matrix.build.platform}}" -o="${{ env.APP_NAME }}-${{ matrix.build.name }}" -ldflags="-extldflags -L/usr/local/Cellar/libusb/1.0.27/lib -lusb-1.0"
+          wails build -s --platform="${{matrix.build.platform}}" -o="${{ env.APP_NAME }}-${{ matrix.build.name }}" -ldflags="-extldflags=-static -s -w"
       - name: Build Wails App (Windows)
         if: startsWith(matrix.build.os,'windows')
         shell: msys2 {0}
         run: |
           export PATH="/c/Users/runneradmin/go/bin:/c/hostedtoolcache/windows/go/${{ env.GO_VERSION }}/x64/bin:$PATH"
           wails doctor
-          wails build -s --platform "${{matrix.build.platform}}" -webview2="embed" -o="${{ env.APP_NAME }}-${{ matrix.build.name }}.exe" -ldflags="-extldflags=-static -s -w"
+          wails build -s --platform "${{matrix.build.platform}}" -o="${{ env.APP_NAME }}-${{ matrix.build.name }}.exe" -ldflags="-extldflags=-static -s -w" -webview2="embed" -tags=native_webview2loader
 
       # Upload build assets
       - uses: actions/upload-artifact@v4
