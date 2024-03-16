@@ -53,6 +53,7 @@ jobs:
             os: "macos-latest"
 
     runs-on: ${{ matrix.build.os }}
+
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -64,35 +65,31 @@ jobs:
         if: matrix.build.os == 'ubuntu-latest'
         run: |
           sudo apt-get update
-          sudo apt-get install -y libusb-1.0 upx-ucl
+          sudo apt-get install -y upx-ucl libusb-1.0
 
       # macos 安装依赖
       - name: install dependencies (macos only)
         if: matrix.build.os == 'macos-latest'
         run: |
-          brew install libusb upx
+          brew install upx libusb
 
       # windows 安装依赖
-      - name: install msys2 (windows only)
+      - name: install dependencies (windows only)
         if: matrix.build.os == 'windows-latest'
         uses: msys2/setup-msys2@v2
         with:
           msystem: "UCRT64"
           update: true
           release: false
-      - name: install dependencies (windows only)
-        if: matrix.build.os == 'windows-latest'
-        shell: msys2 {0}
-        run: |
-          pacman -S --noconfirm --needed mingw-w64-ucrt-x86_64-gcc 
-          pacman -S --noconfirm --needed mingw-w64-ucrt-x86_64-libusb 
-          pacman -S --noconfirm --needed mingw-w64-ucrt-x86_64-pkg-config 
-          pacman -S --noconfirm --needed mingw-w64-ucrt-x86_64-upx
-      - name: set environment variables (windows only)
+          install: >-
+            mingw-w64-ucrt-x86_64-pkg-config
+            mingw-w64-ucrt-x86_64-upx
+            mingw-w64-ucrt-x86_64-libusb
+      - name: setup msys2 environment (windows only)
         if: matrix.build.os == 'windows-latest'
         shell: powershell
         run: |
-          $env:Path+=";C:\msys64\usr\bin;C:\msys64\ucrt64"
+          $env:Path+=";C:\msys64\ucrt64\bin;C:\mysys64\usr\includes"
 
       - uses: dAppServer/wails-build-action@v2.2
         with:
