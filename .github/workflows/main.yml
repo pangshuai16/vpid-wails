@@ -35,15 +35,18 @@ jobs:
       fail-fast: false
       matrix:
         build:
-          # - name: "usb_list"
-          #   platform: "linux/amd64"
-          #   os: "ubuntu-latest"
+          - name: "usb_list"
+            platform: "linux/amd64"
+            os: "ubuntu-latest"
+          - name: "usb_list"
+            platform: "linux/arm64"
+            os: "ubuntu-latest"
           - name: "usb_list"
             platform: "windows/amd64"
             os: "windows-latest"
-          # - name: "usb_list"
-          #   platform: "darwin/amd64"
-          #   os: "macos-latest"
+          - name: "usb_list"
+            platform: "darwin/universal"
+            os: "macos-latest"
 
     runs-on: ${{ matrix.build.os }}
     steps:
@@ -71,7 +74,7 @@ jobs:
 
       - uses: actions/setup-go@v5
         with:
-          go-version: "1.20.0" # The Go version to download (if necessary) and use.
+          go-version: "1.22.1" # The Go version to download (if necessary) and use.
       - run: |
           go env
           go install github.com/wailsapp/wails/v2/cmd/wails@latest
@@ -110,14 +113,18 @@ jobs:
           pkg-config --cflags libusb-1.0
           pkg-config --libs libusb-1.0
 
-      # 编译
+      # 编译 windows
       - name: Build wails
         if: matrix.build.os == 'windows-latest'
         shell: msys2 {0}
         run: |
           export PATH="/c/Users/runneradmin/go/bin:/c/hostedtoolcache/windows/go/1.22.0/x64/bin:$PATH"
           wails build -s -platform="${{ matrix.build.platform }}" -webview2=download  -ldflags="-extldflags=-static -w"
-
+      # 编译 非 windows
+      - name: Build wails not windows
+        if: matrix.build.os != 'windows-latest'
+        run: |
+          wails build -s -platform="${{ matrix.build.platform }}" -webview2=download  -ldflags="-extldflags=-static -w"
       # 发布 release
       - uses: actions/upload-artifact@v3
         with:
