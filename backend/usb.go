@@ -42,8 +42,8 @@ func (a *USB) GetHidList() UsbList {
 		// 返回 true，以匹配所有设备
 		return true
 	})
-	if err != nil {
-		fmt.Println("无法打开 USB 设备:", err)
+	if err != nil && len(devices) == 0 {
+		fmt.Println("No USB devices found")
 		return UsbList{}
 	}
 	defer func() {
