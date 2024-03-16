@@ -88,13 +88,18 @@ jobs:
         if: matrix.build.os == 'windows-latest'
         uses: msys2/setup-msys2@v2
         with:
-          msystem: "UCRT64"
           update: true
           release: false
           install: >-
-            mingw-w64-ucrt-x86_64-pkg-config
-            mingw-w64-ucrt-x86_64-upx
-            mingw-w64-ucrt-x86_64-libusb
+            mingw-w64-x86_64-gcc
+            mingw-w64-x86_64-pkg-config
+            mingw-w64-x86_64-upx
+            mingw-w64-x86_64-libusb
+      - name: set environment variables (windows only)
+        if: matrix.build.os == 'windows-latest'
+        shell: powershell
+        run: |
+          $env:Path+=";C:\msys64\usr\bin;C:\msys64\mingw64\bin;C:\msys64\mingw64\include"
 
       # 前端打包
       - name: Setup pnpm
@@ -118,7 +123,10 @@ jobs:
       - uses: actions/setup-go@v5
         with:
           go-version: ${{ env.GO_VERSION }}
-      - run: go install github.com/wailsapp/wails/v2/cmd/wails@latest
+      - run: |
+          pkg-config --cflags libusb-1.0
+          pkg-config --libs libusb-1.0
+          go install github.com/wailsapp/wails/v2/cmd/wails@latest
       - name: Build wails (windows only)
         if: matrix.build.os == 'windows-latest'
         shell: msys2 {0}

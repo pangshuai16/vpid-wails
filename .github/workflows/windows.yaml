@@ -1,4 +1,4 @@
-name: Wails build
+name: Wails build for windows
 
 on:
   push:
@@ -8,81 +8,76 @@ on:
 
 env:
   # Necessary for most environments as build failure can occur due to OOM issues
-  APP_NAME: "usb_list"
   NODE_OPTIONS: "--max-old-space-size=4096"
-  NODE_VERSION: "20"
-  PNPM_VERSION: "8"
-  GO_VERSION: "1.21.8"
 
 jobs:
   build:
     permissions:
       contents: write
+    # needs: create-release
     strategy:
-      # Failure in one platform build won't impact the others
-      fail-fast: false
       matrix:
         build:
-          - name: "windows-amd64"
+          - name: "usb_list"
             platform: "windows/amd64"
             os: "windows-latest"
 
     runs-on: ${{ matrix.build.os }}
-
     steps:
       - name: Checkout
         uses: actions/checkout@v2
         with:
           submodules: recursive
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+          run_install: false
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "pnpm"
+          cache-dependency-path: "frontend/pnpm-lock.yaml"
+
+      - run: |
+          cd frontend
+          pnpm install
+          pnpm run build
+      - uses: actions/setup-go@v5
+        with:
+          version: 1.21.8
+      - run: |
+          go env
+          go install github.com/wailsapp/wails/v2/cmd/wails@latest
+
       # windows 安装依赖
       - name: install msys2 (windows only)
         if: matrix.build.os == 'windows-latest'
         uses: msys2/setup-msys2@v2
         with:
-          msystem: "UCRT64"
           update: true
           release: false
-          install: >-
-            mingw-w64-ucrt-x86_64-go
-            mingw-w64-ucrt-x86_64-pkg-config
-            mingw-w64-ucrt-x86_64-upx
-            mingw-w64-ucrt-x86_64-libusb
-
-      # 前端打包
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v2
-        with:
-          version: ${{env.PNPM_VERSION}}
-          run_install: false
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: "pnpm"
-          cache-dependency-path: "frontend/pnpm-lock.yaml"
-      - name: Build frontend
+      - name: set environment variables (windows only)
+        if: matrix.build.os == 'windows-latest'
+        shell: powershell
         run: |
-          cd frontend
-          pnpm install
-          pnpm run build
-
-      # wails 编译
-      - name: Build wails (windows only)
+          $env:Path+=";C:\msys64\ucrt64\bin"
+      - name: install dependencies (windows only)
         if: matrix.build.os == 'windows-latest'
         shell: msys2 {0}
         run: |
-          export PATH="/c/Users/runneradmin/go/bin:/c/hostedtoolcache/windows/go/${{ env.GO_VERSION }}/x64/bin:$PATH"
-          go install github.com/wailsapp/wails/v2/cmd/wails@latest
-          wails doctor
-          wails build -s -upx -platform="${{ matrix.build.platform }}" -webview2=download  -ldflags="-extldflags=-static -w -s" -o ${{ env.APP_NAME }}-${{matrix.build.name}}
-      - name: Build wails ( linux & macos )
-        if: matrix.build.os != 'windows-latest'
+          pacman -S --noconfirm --needed mingw-w64-x86_64-gcc mingw-w64-x86_64-libusb mingw-w64-x86_64-pkg-config
+          pkg-config --cflags libusb-1.0
+          pkg-config --libs libusb-1.0
+      # 编译
+      - name: Build wails
+        if: matrix.build.os == 'windows-latest'
+        shell: msys2 {0}
         run: |
-          go install github.com/wailsapp/wails/v2/cmd/wails@latest
-          wails doctor
-          wails build -s -upx -platform="${{ matrix.build.platform }}" -ldflags="-extldflags=-static -w -s" -o ${{ env.APP_NAME }}-${{matrix.build.name}}
-
+          export PATH="/c/Users/runneradmin/go/bin:/c/hostedtoolcache/windows/go/1.21.8/x64/bin:$PATH"
+          wails build -s -platform="${{ matrix.build.platform }}" -webview2=download  -ldflags="-extldflags=-static -w -s"
       # 发布 release
       - uses: actions/upload-artifact@v3
         with:
