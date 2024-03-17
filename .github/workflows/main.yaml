@@ -50,12 +50,12 @@ jobs:
             #   platform: "linux/arm64",
             #   os: "ubuntu-latest",
             # },
-            {
-              name: "linux-amd64",
-              platform: "linux/amd64",
-              os: "ubuntu-latest",
-            },
-            # { name: "darwin-amd64", platform: "darwin/amd64", os: "macos-13" },
+            # {
+            #   name: "linux-amd64",
+            #   platform: "linux/amd64",
+            #   os: "ubuntu-latest",
+            # },
+            { name: "darwin-amd64", platform: "darwin/amd64", os: "macos-13" },
             # { name: "darwin-arm64", platform: "darwin/arm64", os: "macos-14" },
           ]
 
@@ -126,14 +126,17 @@ jobs:
         with:
           go-version: ${{ env.GO_VERSION }}
       - name: Install Wails
-        run: go install github.com/wailsapp/wails/v2/cmd/wails@latest
+        run: |
+          go install github.com/wailsapp/wails/v2/cmd/wails@latest
+          go mod tidy
+          which fixlibusb_darwin.sh
       - name: Build Wails App (Linux)
         if: startsWith(matrix.build.platform,'linux')
         run: |
           pkg-config --cflags libusb-1.0
           pkg-config --libs libusb-1.0
           wails doctor
-          CGO_CFLAGS="-I/usr/include" wails build -s --platform="${{matrix.build.platform}}" -o="${{ env.APP_NAME }}-${{ matrix.build.name }}" -ldflags="-extldflags=-static -s -w"
+          wails build -s --platform="${{matrix.build.platform}}" -o="${{ env.APP_NAME }}-${{ matrix.build.name }}" -ldflags="-extldflags=-static -s -w"
       - name: Build Wails App (macOS)
         if: startsWith(matrix.build.os,'macos')
         run: |
