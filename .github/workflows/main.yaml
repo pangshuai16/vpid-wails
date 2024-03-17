@@ -87,79 +87,80 @@ jobs:
           sudo ldconfig
           pkg-config --cflags --libs webkit2gtk-4.0
           echo "--------------------------------------------------"
-          cat /etc/ld.so.conf
+          ls /etc/ld.so.conf.d/
           echo "--------------------------------------------------"
+          cat /etc/ld.so.conf.d/*.conf
 
       # set dependencies (macos only)
-      - name: install dependencies (macos only)
-        if: startsWith(matrix.build.os,'macos')
-        run: |
-          brew install gcc
-          brew install pkg-config
-          brew install libusb
-          brew install libusb-compat
-          brew install upx
-          brew install mitchellh/gon/gon
+      # - name: install dependencies (macos only)
+      #   if: startsWith(matrix.build.os,'macos')
+      #   run: |
+      #     brew install gcc
+      #     brew install pkg-config
+      #     brew install libusb
+      #     brew install libusb-compat
+      #     brew install upx
+      #     brew install mitchellh/gon/gon
 
-      # set dependencies (windows only)
-      - name: install dependencies (windows only)
-        if: startsWith(matrix.build.os,'windows')
-        uses: msys2/setup-msys2@v2
-        with:
-          update: true
-          release: false
-          install: >
-            mingw-w64-x86_64-gcc
-            mingw-w64-x86_64-pkg-config
-            mingw-w64-x86_64-libusb
-            mingw-w64-x86_64-upx
+      # # set dependencies (windows only)
+      # - name: install dependencies (windows only)
+      #   if: startsWith(matrix.build.os,'windows')
+      #   uses: msys2/setup-msys2@v2
+      #   with:
+      #     update: true
+      #     release: false
+      #     install: >
+      #       mingw-w64-x86_64-gcc
+      #       mingw-w64-x86_64-pkg-config
+      #       mingw-w64-x86_64-libusb
+      #       mingw-w64-x86_64-upx
 
-      # Build UI
-      - uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-      - name: Build WebUI
-        run: |
-          cd frontend
-          npm install
-          npm run build
+      # # Build UI
+      # - uses: actions/setup-node@v4
+      #   with:
+      #     node-version: ${{ env.NODE_VERSION }}
+      # - name: Build WebUI
+      #   run: |
+      #     cd frontend
+      #     npm install
+      #     npm run build
 
-      # Build Wails
-      - uses: actions/setup-go@v5
-        with:
-          go-version: ${{ env.GO_VERSION }}
-      - name: Install Wails
-        run: go install github.com/wailsapp/wails/v2/cmd/wails@latest
-      - name: Build Wails App (Linux)
-        if: startsWith(matrix.build.platform,'linux')
-        run: |
-          pkg-config --cflags libusb-1.0
-          pkg-config --libs libusb-1.0
-          wails doctor
-          wails build -s --platform="${{matrix.build.platform}}" -o="${{ env.APP_NAME }}-${{ matrix.build.name }}" -ldflags="-extldflags=-static -s -w"
-      - name: Build Wails App (macOS)
-        if: startsWith(matrix.build.os,'macos')
-        run: |
-          pkg-config --cflags libusb-1.0
-          pkg-config --libs libusb-1.0
-          wails doctor
-          wails build -s --platform="${{matrix.build.platform}}" -o="${{ env.APP_NAME }}-${{ matrix.build.name }}" -ldflags="-extldflags=-static -s -w -r=/usr/local/Cellar"
-      - name: Build Wails App (Windows)
-        if: startsWith(matrix.build.os,'windows')
-        shell: msys2 {0}
-        run: |
-          export PATH="/c/Users/runneradmin/go/bin:/c/hostedtoolcache/windows/go/${{ env.GO_VERSION }}/x64/bin:$PATH"
-          wails doctor
-          wails build -s --platform "${{matrix.build.platform}}" -o="${{ env.APP_NAME }}-${{ matrix.build.name }}.exe" -ldflags="-extldflags=-static -s -w" -webview2="embed" -tags=native_webview2loader
+      # # Build Wails
+      # - uses: actions/setup-go@v5
+      #   with:
+      #     go-version: ${{ env.GO_VERSION }}
+      # - name: Install Wails
+      #   run: go install github.com/wailsapp/wails/v2/cmd/wails@latest
+      # - name: Build Wails App (Linux)
+      #   if: startsWith(matrix.build.platform,'linux')
+      #   run: |
+      #     pkg-config --cflags libusb-1.0
+      #     pkg-config --libs libusb-1.0
+      #     wails doctor
+      #     wails build -s --platform="${{matrix.build.platform}}" -o="${{ env.APP_NAME }}-${{ matrix.build.name }}" -ldflags="-extldflags=-static -s -w"
+      # - name: Build Wails App (macOS)
+      #   if: startsWith(matrix.build.os,'macos')
+      #   run: |
+      #     pkg-config --cflags libusb-1.0
+      #     pkg-config --libs libusb-1.0
+      #     wails doctor
+      #     wails build -s --platform="${{matrix.build.platform}}" -o="${{ env.APP_NAME }}-${{ matrix.build.name }}" -ldflags="-extldflags=-static -s -w -r=/usr/local/Cellar"
+      # - name: Build Wails App (Windows)
+      #   if: startsWith(matrix.build.os,'windows')
+      #   shell: msys2 {0}
+      #   run: |
+      #     export PATH="/c/Users/runneradmin/go/bin:/c/hostedtoolcache/windows/go/${{ env.GO_VERSION }}/x64/bin:$PATH"
+      #     wails doctor
+      #     wails build -s --platform "${{matrix.build.platform}}" -o="${{ env.APP_NAME }}-${{ matrix.build.name }}.exe" -ldflags="-extldflags=-static -s -w" -webview2="embed" -tags=native_webview2loader
 
-      # Upload build assets
-      - uses: actions/upload-artifact@v4
-        with:
-          name: Wails Build ${{ matrix.build.name }}
-          path: |
-            ./build/bin/*
-      - name: Release
-        if: startsWith(github.ref, 'refs/tags/')
-        uses: softprops/action-gh-release@v2
-        with:
-          files: "./build/bin/*"
+      # # Upload build assets
+      # - uses: actions/upload-artifact@v4
+      #   with:
+      #     name: Wails Build ${{ matrix.build.name }}
+      #     path: |
+      #       ./build/bin/*
+      # - name: Release
+      #   if: startsWith(github.ref, 'refs/tags/')
+      #   uses: softprops/action-gh-release@v2
+      #   with:
+      #     files: "./build/bin/*"
