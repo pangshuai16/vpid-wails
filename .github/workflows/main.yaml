@@ -133,7 +133,7 @@ jobs:
           pkg-config --cflags libusb-1.0
           pkg-config --libs libusb-1.0
           wails doctor
-          CGO_CFLAGS="-I/usr/include" wails build -s --platform="${{matrix.build.platform}}" -o="${{ env.APP_NAME }}-${{ matrix.build.name }}" -flag="/usr/include" -ldflags="-extldflags=-static -s -w"
+          CGO_CFLAGS="-I/usr/include" wails build -s --platform="${{matrix.build.platform}}" -o="${{ env.APP_NAME }}-${{ matrix.build.name }}" -flags="-I/usr/include" -ldflags="-extldflags=-static -s -w"
       - name: Build Wails App (macOS)
         if: startsWith(matrix.build.os,'macos')
         run: |
