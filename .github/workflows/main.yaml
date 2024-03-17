@@ -86,6 +86,9 @@ jobs:
           sudo apt-get install -y libc6-dev
           sudo ldconfig
           pkg-config --cflags --libs webkit2gtk-4.0
+          echo "--------------------------------------------------"
+          cat /etc/ld.so.conf
+          echo "--------------------------------------------------"
 
       # set dependencies (macos only)
       - name: install dependencies (macos only)
