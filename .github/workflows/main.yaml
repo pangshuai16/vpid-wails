@@ -39,25 +39,24 @@ jobs:
       # Failure in one platform build won't impact the others
       fail-fast: false
       matrix:
-        build:
-          [
-            {
-              name: "windows-amd64",
-              platform: "windows/amd64",
-              os: "windows-latest",
-            },
-            {
-              name: "linux-arm64",
-              platform: "linux/arm64",
-              os: "ubuntu-latest",
-            },
+        build: [
+            # {
+            #   name: "windows-amd64",
+            #   platform: "windows/amd64",
+            #   os: "windows-latest",
+            # },
+            # {
+            #   name: "linux-arm64",
+            #   platform: "linux/arm64",
+            #   os: "ubuntu-latest",
+            # },
             {
               name: "linux-amd64",
               platform: "linux/amd64",
               os: "ubuntu-latest",
             },
-            { name: "darwin-amd64", platform: "darwin/amd64", os: "macos-13" },
-            { name: "darwin-arm64", platform: "darwin/arm64", os: "macos-14" },
+            # { name: "darwin-amd64", platform: "darwin/amd64", os: "macos-13" },
+            # { name: "darwin-arm64", platform: "darwin/arm64", os: "macos-14" },
           ]
 
     runs-on: ${{ matrix.build.os }}
