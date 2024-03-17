@@ -45,17 +45,17 @@ jobs:
             #   platform: "windows/amd64",
             #   os: "windows-latest",
             # },
+            {
+              name: "linux-amd64",
+              platform: "linux/amd64",
+              os: "ubuntu-latest",
+            },
+            { name: "darwin-amd64", platform: "darwin/amd64", os: "macos-13" },
             # {
             #   name: "linux-arm64",
             #   platform: "linux/arm64",
             #   os: "ubuntu-latest",
             # },
-            # {
-            #   name: "linux-amd64",
-            #   platform: "linux/amd64",
-            #   os: "ubuntu-latest",
-            # },
-            { name: "darwin-amd64", platform: "darwin/amd64", os: "macos-13" },
             # { name: "darwin-arm64", platform: "darwin/arm64", os: "macos-14" },
           ]
 
@@ -128,29 +128,27 @@ jobs:
       - name: Install Wails
         run: |
           go install github.com/wailsapp/wails/v2/cmd/wails@latest
-          go mod tidy
-          which fixlibusb_darwin.sh
       - name: Build Wails App (Linux)
         if: startsWith(matrix.build.platform,'linux')
         run: |
           pkg-config --cflags libusb-1.0
           pkg-config --libs libusb-1.0
           wails doctor
-          wails build -s --platform="${{matrix.build.platform}}" -o="${{ env.APP_NAME }}-${{ matrix.build.name }}" -ldflags="-extldflags=-static -s -w"
+          wails build -s -trimpath --platform="${{matrix.build.platform}}" -o="${{ env.APP_NAME }}-${{ matrix.build.name }}" -ldflags="-extldflags=-static -s -w"
       - name: Build Wails App (macOS)
         if: startsWith(matrix.build.os,'macos')
         run: |
           pkg-config --cflags libusb-1.0
           pkg-config --libs libusb-1.0
           wails doctor
-          wails build -s --platform="${{matrix.build.platform}}" -o="${{ env.APP_NAME }}-${{ matrix.build.name }}" -ldflags="-extldflags=-static -s -w -r=/usr/local/Cellar"
+          wails build -s -trimpath --platform="${{matrix.build.platform}}" -o="${{ env.APP_NAME }}-${{ matrix.build.name }}" -ldflags="-extldflags=-static -s -w -r=/usr/local/Cellar"
       - name: Build Wails App (Windows)
         if: startsWith(matrix.build.os,'windows')
         shell: msys2 {0}
         run: |
           export PATH="/c/Users/runneradmin/go/bin:/c/hostedtoolcache/windows/go/${{ env.GO_VERSION }}/x64/bin:$PATH"
           wails doctor
-          wails build -s --platform "${{matrix.build.platform}}" -o="${{ env.APP_NAME }}-${{ matrix.build.name }}.exe" -ldflags="-extldflags=-static -s -w" -webview2="embed" -tags=native_webview2loader
+          wails build -s -trimpath --platform "${{matrix.build.platform}}" -o="${{ env.APP_NAME }}-${{ matrix.build.name }}.exe" -ldflags="-extldflags=-static -s -w" -webview2="embed" -tags=native_webview2loader
 
       # Upload build assets
       - uses: actions/upload-artifact@v4
