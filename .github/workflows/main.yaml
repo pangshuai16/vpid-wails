@@ -40,11 +40,11 @@ jobs:
       fail-fast: false
       matrix:
         build: [
-            # {
-            #   name: "windows-amd64",
-            #   platform: "windows/amd64",
-            #   os: "windows-latest",
-            # },
+            {
+              name: "windows-amd64",
+              platform: "windows/amd64",
+              os: "windows-latest",
+            },
             {
               name: "linux-amd64",
               platform: "linux/amd64",
@@ -66,8 +66,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        with:
-          submodules: recursive
+        # with:
+        #   submodules: recursive
 
       # set dependencies (linux only)
       - name: install dependencies (ubuntu only)
@@ -128,6 +128,9 @@ jobs:
       - name: Install Wails
         run: |
           go install github.com/wailsapp/wails/v2/cmd/wails@latest
+          go mod tidy
+
+      # App Build
       - name: Build Wails App (Linux)
         if: startsWith(matrix.build.platform,'linux')
         run: |
