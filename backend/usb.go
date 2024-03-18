@@ -32,47 +32,54 @@ var currentList = []Device{}
 var baseList = []Device{}
 
 func (a *USB) GetHidList() UsbList {
+
 	ctx := gousb.NewContext()
 	defer ctx.Close()
 	// 初始化 USB 上下文
 	ctx.Debug(0)
-
+	currentList = currentList[:0]
 	// 打开 USB 设备
-	devices, err := ctx.OpenDevices(func(desc *gousb.DeviceDesc) bool {
+	_, err := ctx.OpenDevices(func(desc *gousb.DeviceDesc) bool {
 		// 返回 true，以匹配所有设备
-		return true
+
+		device, err := ctx.OpenDeviceWithVIDPID(desc.Vendor, desc.Product)
+		if err != nil {
+			currentList = append(currentList, Device{
+				VendorID:     desc.Vendor.String(),
+				ProductID:    desc.Product.String(),
+				Version:      desc.Device.String(),
+				Manufacturer: "",
+				Product:      "",
+				Class:        desc.Class.String(),
+				SubClass:     desc.SubClass.String(),
+			})
+			return false
+		}
+		defer device.Close()
+		manufacturer, _ := device.Manufacturer()
+		product, _ := device.Product()
+		currentList = append(currentList, Device{
+			VendorID:     desc.Vendor.String(),
+			ProductID:    desc.Product.String(),
+			Version:      desc.Device.String(),
+			Manufacturer: manufacturer,
+			Product:      product,
+			Class:        desc.Class.String(),
+			SubClass:     desc.SubClass.String(),
+		})
+		return false
 	})
 	if err != nil {
 		fmt.Println("No USB devices found")
 	}
-	defer func() {
-		// 关闭设备
-		for _, device := range devices {
-			device.Close()
+
+	sort.Slice(currentList, func(i, j int) bool {
+		if currentList[i].VendorID == currentList[j].VendorID {
+			return currentList[i].ProductID < currentList[j].ProductID
 		}
-	}()
-	sort.Slice(devices, func(i, j int) bool {
-		if devices[i].Desc.Vendor == devices[j].Desc.Vendor {
-			return devices[i].Desc.Product < devices[j].Desc.Product
-		}
-		return devices[i].Desc.Vendor < devices[j].Desc.Vendor
+		return currentList[i].VendorID < currentList[j].VendorID
 	})
-	currentList = currentList[:0]
-	for _, device := range devices {
 
-		manufacturer, _ := device.Manufacturer()
-		product, _ := device.Product()
-
-		currentList = append(currentList, Device{
-			VendorID:     device.Desc.Vendor.String(),
-			ProductID:    device.Desc.Product.String(),
-			Version:      device.Desc.Device.String(),
-			Manufacturer: manufacturer,
-			Product:      product,
-			Class:        device.Desc.Class.String(),
-			SubClass:     device.Desc.SubClass.String(),
-		})
-	}
 	if len(baseList) == 0 {
 		a.SetHidBase()
 	}
