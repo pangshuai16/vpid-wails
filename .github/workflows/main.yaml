@@ -50,7 +50,11 @@ jobs:
               platform: "linux/amd64",
               os: "ubuntu-latest",
             },
-            { name: "darwin-amd64", platform: "darwin/amd64", os: "macos-13" },
+            {
+              name: "darwin-amd64",
+              platform: "darwin/amd64",
+              os: "macos-latest",
+            },
             # {
             #   name: "linux-arm64",
             #   platform: "linux/arm64",
@@ -83,7 +87,6 @@ jobs:
           sudo apt-get install -y libusb-1.0-0-dev
           sudo apt-get install -y upx-ucl
           sudo apt-get install -y libudev-dev
-          sudo apt-get install -y libc6-dev
           sudo ldconfig
           pkg-config --cflags --libs webkit2gtk-4.0
 
@@ -91,12 +94,12 @@ jobs:
       - name: install dependencies (macos only)
         if: startsWith(matrix.build.os,'macos')
         run: |
+          brew install make
           brew install gcc
           brew install pkg-config
           brew install libusb
           brew install libusb-compat
           brew install upx
-          brew install mitchellh/gon/gon
 
       # set dependencies (windows only)
       - name: install dependencies (windows only)
